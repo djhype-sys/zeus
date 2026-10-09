@@ -14,7 +14,7 @@ Four recovered ZIP packages are unpacked under `archive/`, preserving original s
 Run `python3 tests/smoke.py`. It checks archive integrity and essential files. The original championship agent unit tests are preserved under `archive/championship-starter/`.
 
 ## GitHub
-Repository: `djhype-sys/zeus` (private). The user created the repository on 9 October 2026; this source is the recovered initial baseline. Do not publish personal demo data, secrets, OAuth tokens or client details.
+Repository: `djhype-sys/zeus` (public, with user approval on 9 October 2026). The user created the repository on 9 October 2026; this source is the recovered initial baseline. Do not publish personal demo data, secrets, OAuth tokens or client details.
 
 ## Current status
-Master package recovered and prepared for the user-selected `djhype-sys` account. The beta is a browser-local demo; live integration readiness and deployment remain unverified. The local smoke check and three archived agent tests passed. Replit merge remains pending verification.
+Master package recovered and prepared for the user-selected `djhype-sys` account. The beta is a browser-local demo; live integration readiness and deployment remain unverified. The local smoke check and three archived agent tests passed. The GitHub smoke workflow passed, and connector source reads are verified. Connector writes require a repository app grant; browser commits remain available. Replit merge remains pending verification.
