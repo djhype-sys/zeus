@@ -6,6 +6,14 @@ This document carries forward the release decisions agreed on 8 October 2026. It
 
 Build a device-independent, cross-platform, installable offline-first PWA for iPhone, Android, Mac, Windows and browsers. Use a shared architecture, synchronize records online, and keep LIVE useful offline with reconciliation on reconnect. Native extensions are optional where voice or on-device AI needs them.
 
+## Voice-reactive orb — agreed 9 October 2026
+
+ZEUS speech must be visually audio-reactive. Preserve the gold identity: actual voice amplitude and frequency energy drive surface deformation, glow and expansion; pauses soften the motion and speech completion returns to idle. Listening reacts to the consented microphone stream; speaking reacts to ZEUS playback audio. Keep idle, listening, thinking, speaking and error states distinct. Thinking animation is state-driven, not claimed as audio analysis.
+
+The existing beta uses a timed pulse and does not satisfy this requirement. Implement through the voice playback abstraction shared with EARS/LIVE. Analyze the same audio stream delivered to the speaker; avoid microphone loopback of ZEUS output. Provide audio cancellation, stream cleanup, reduced-motion support and a useful low-power fallback. Acceptance: compare quiet speech, loud speech, pauses, interruption and completion against the orb on mobile and desktop. Do not mark complete from a simulated animation.
+
+Candidate implementation reference: https://github.com/OrbitingBucket/voice-orb-visualizer (MIT; microphone and assistant-audio APIs, including HTML audio connection). Evaluate source and pin a reviewed version before adoption; bundle dependencies for offline operation. This is a candidate, not confirmation of the repository remembered by the user. A React alternative is https://github.com/amunozdev/voiceorbs. No dependency has been adopted or voice reactivity implemented in this baseline.
+
 ## Release modules and milestones
 
 | Milestone | Deliverable | Verified implementation status |
