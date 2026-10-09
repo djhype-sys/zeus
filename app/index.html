@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d">
+<title>ZEUS - AI Business OS for DJs</title>
+<style>
+:root {
+  --gold: #C9A96E;
+  --gold-light: #E8D5A3;
+  --gold-dark: #8B7355;
+  --gold-glow: rgba(201,169,110,0.3);
+  --charcoal: #1a1a1a;
+  --charcoal-light: #2a2a2a;
+  --storm-dark: #0d0d0d;
+  --storm-mid: #1c1c1c;
+  --marble: #f5f3ef;
+  --marble-dark: #e8e4dc;
+  --text-light: #f0f0f0;
+  --text-dark: #1a1a1a;
+  --text-muted: #888;
+  --danger: #c44;
+  --success: #4a6;
+  --warning: #ca4;
+  --info: #48a;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.15);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.2);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+  --transition: 0.25s ease;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--kimi-font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-size: 16px; line-height: 1.5; color: var(--text-light);
+  background: var(--storm-dark); -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+#app { width: 100%; height: 100%; position: relative; overflow: hidden; }
+.page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; overflow: hidden; }
+.page.active { display: flex; }
+
+/* Auth */
+.auth-bg { background: linear-gradient(160deg, var(--storm-dark) 0%, var(--charcoal) 50%, #0a0a0a 100%); position: relative; }
+.auth-bg::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(201,169,110,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,169,110,0.05) 0%, transparent 50%); pointer-events: none; }
+.auth-container { position: relative; z-index: 1; max-width: 420px; width: 90%; margin: auto; padding: 40px 24px; }
+.zeus-logo { text-align: center; margin-bottom: 40px; }
+.zeus-logo h1 { font-size: 52px; font-weight: 500; letter-spacing: 10px; color: var(--gold); text-shadow: 0 0 50px rgba(201,169,110,0.3); }
+.zeus-logo p { color: var(--text-muted); font-size: 13px; margin-top: 8px; letter-spacing: 4px; text-transform: uppercase; }
+.auth-form { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.15); border-radius: var(--radius-lg); padding: 32px 24px; backdrop-filter: blur(10px); }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1.5px; }
+.input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(201,169,110,0.2); border-radius: var(--radius-md); color: var(--text-light); font-size: 15px; outline: none; transition: var(--transition); }
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,169,110,0.15); }
+.input-group textarea { min-height: 80px; resize: vertical; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 500; cursor: pointer; transition: var(--transition); text-decoration: none; }
+.btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--storm-dark); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,169,110,0.3); }
+.btn-secondary { background: rgba(255,255,255,0.08); color: var(--text-light); border: 1px solid rgba(255,255,255,0.1); }
+.btn-secondary:hover { background: rgba(255,255,255,0.12); }
+.btn-danger { background: rgba(204,68,68,0.15); color: var(--danger); border: 1px solid rgba(204,68,68,0.3); }
+.btn-success { background: rgba(68,170,102,0.15); color: var(--success); border: 1px solid rgba(68,170,102,0.3); }
+.btn-warning { background: rgba(202,170,68,0.15); color: var(--warning); border: 1px solid rgba(202,170,68,0.3); }
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+.btn-xs { padding: 6px 12px; font-size: 12px; }
+.auth-toggle { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 14px; }
+.auth-toggle a { color: var(--gold); cursor: pointer; text-decoration: none; }
+.auth-toggle a:hover { text-decoration: underline; }
+
+/* Onboarding */
+.onboarding-bg { background: linear-gradient(160deg, var(--storm-dark) 0%, var(--charcoal) 100%); }
+.onboarding-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(201,169,110,0.1); }
+.onboarding-header .logo-small { font-size: 20px; font-weight: 500; color: var(--gold); letter-spacing: 4px; }
+.progress-dots { display: flex; gap: 6px; }
+.progress-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,169,110,0.2); transition: var(--transition); }
+.progress-dot.active { background: var(--gold); box-shadow: 0 0 8px rgba(201,169,110,0.4); }
+.onboarding-body { flex: 1; overflow-y: auto; padding: 32px 24px; max-width: 640px; width: 100%; margin: 0 auto; }
+.onboarding-step h2 { font-size: 26px; font-weight: 500; color: var(--gold-light); margin-bottom: 8px; }
+.onboarding-step p { color: var(--text-muted); margin-bottom: 28px; font-size: 15px; }
+.service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+.service-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.1); border-radius: var(--radius-md); padding: 20px; cursor: pointer; transition: var(--transition); text-align: center; }
+.service-card:hover { border-color: rgba(201,169,110,0.3); background: rgba(255,255,255,0.05); }
+.service-card.selected { border-color: var(--gold); background: rgba(201,169,110,0.08); }
+.service-card .icon { font-size: 28px; margin-bottom: 8px; }
+.service-card h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.service-card p { font-size: 12px; color: var(--text-muted); margin: 0; }
+.rate-row { display: flex; align-items: center; gap: 16px; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.1); border-radius: var(--radius-md); margin-bottom: 10px; }
+.rate-row .rate-info { flex: 1; }
+.rate-row h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.rate-row p { font-size: 12px; color: var(--text-muted); margin: 0; }
+.rate-row input { width: 100px; padding: 8px 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(201,169,110,0.2); border-radius: var(--radius-sm); color: var(--text-light); font-size: 14px; text-align: right; }
+.integration-list { display: flex; flex-direction: column; gap: 10px; }
+.integration-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.1); border-radius: var(--radius-md); }
+.integration-item .icon-box { width: 40px; height: 40px; border-radius: var(--radius-sm); background: rgba(201,169,110,0.1); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.integration-item .info { flex: 1; }
+.integration-item h4 { font-size: 14px; font-weight: 500; }
+.integration-item p { font-size: 12px; color: var(--text-muted); margin: 0; }
+.integration-item .status { font-size: 10px; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+.status-required { background: rgba(201,169,110,0.15); color: var(--gold); }
+.status-optional { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+.status-connected { background: rgba(68,170,102,0.15); color: var(--success); }
+.status-demo { background: rgba(202,170,68,0.15); color: var(--warning); }
+.status-unsupported { background: rgba(204,68,68,0.1); color: var(--danger); }
+.onboarding-footer { padding: 16px 24px; border-top: 1px solid rgba(201,169,110,0.1); display: flex; justify-content: space-between; gap: 12px; }
+
+/* Oracle Dark Mode */
+.oracle-bg { background: linear-gradient(180deg, #0a0a0a 0%, #141414 40%, #0d0d0d 100%); position: relative; }
+.oracle-bg::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% 30%, rgba(201,169,110,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 20% 70%, rgba(100,100,120,0.04) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 80% 70%, rgba(100,100,120,0.04) 0%, transparent 50%); pointer-events: none; }
+@keyframes lightning { 0%, 90%, 100% { opacity: 0; } 92% { opacity: 0.8; } 93% { opacity: 0.2; } 94% { opacity: 0.6; } 96% { opacity: 0; } }
+.lightning-flash { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 20%, rgba(201,169,110,0.15) 0%, transparent 50%); opacity: 0; pointer-events: none; z-index: 2; }
+.lightning-flash.active { animation: lightning 3s ease-out; }
+.oracle-header { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10; }
+.oracle-header .logo { font-size: 20px; font-weight: 500; color: var(--gold); letter-spacing: 4px; }
+.oracle-header .header-actions { display: flex; gap: 10px; align-items: center; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,169,110,0.15); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
+.icon-btn:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
+.icon-btn svg { width: 20px; height: 20px; }
+.oracle-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 24px; }
+.orb-container { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px; }
+.orb { width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, var(--gold-light), var(--gold) 40%, var(--gold-dark) 70%, #3a3020 100%); box-shadow: 0 0 60px rgba(201,169,110,0.3), 0 0 120px rgba(201,169,110,0.15), inset 0 0 40px rgba(255,255,255,0.1); position: relative; cursor: pointer; transition: var(--transition); }
+.orb:hover { transform: scale(1.05); box-shadow: 0 0 80px rgba(201,169,110,0.4), 0 0 160px rgba(201,169,110,0.2), inset 0 0 50px rgba(255,255,255,0.15); }
+.orb.pulse { animation: orbPulse 2s ease-in-out infinite; }
+@keyframes orbPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+.orb-inner { position: absolute; inset: 20px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.3), transparent 60%); }
+.orb-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(201,169,110,0.15); }
+.orb-ring:nth-child(1) { width: 200px; height: 200px; animation: ringSpin 20s linear infinite; }
+.orb-ring:nth-child(2) { width: 240px; height: 240px; animation: ringSpin 25s linear infinite reverse; border-color: rgba(201,169,110,0.08); }
+.orb-ring:nth-child(3) { width: 280px; height: 280px; animation: ringSpin 30s linear infinite; border-color: rgba(201,169,110,0.05); }
+@keyframes ringSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.orb-label { text-align: center; color: var(--text-muted); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+.voice-input-container { width: 100%; max-width: 480px; position: relative; z-index: 10; }
+.voice-input { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,169,110,0.2); border-radius: 30px; padding: 10px 18px; backdrop-filter: blur(10px); }
+.voice-input input { flex: 1; background: transparent; border: none; color: var(--text-light); font-size: 15px; outline: none; }
+.voice-input input::placeholder { color: var(--text-muted); }
+.voice-input .mic-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(201,169,110,0.15); border: none; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
+.voice-input .mic-btn:hover { background: rgba(201,169,110,0.25); }
+.voice-input .mic-btn svg { width: 18px; height: 18px; }
+.oracle-cards { position: absolute; top: 80px; left: 20px; right: 20px; bottom: 160px; pointer-events: none; z-index: 5; overflow: hidden; }
+.oracle-card { position: absolute; background: rgba(18,18,18,0.92); border: 1px solid rgba(201,169,110,0.25); border-radius: var(--radius-lg); padding: 18px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(201,169,110,0.05); pointer-events: auto; max-width: 300px; animation: cardAppear 0.4s ease-out; }
+@keyframes cardAppear { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.oracle-card .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.oracle-card .card-icon { width: 28px; height: 28px; border-radius: var(--radius-sm); background: rgba(201,169,110,0.1); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 13px; }
+.oracle-card h4 { font-size: 13px; font-weight: 500; color: var(--gold-light); margin-bottom: 6px; }
+.oracle-card p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+.oracle-card .card-actions { display: flex; gap: 6px; margin-top: 12px; }
+.completion-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); border: 1px solid var(--gold); border-radius: 30px; padding: 12px 28px; color: var(--gold); font-size: 14px; letter-spacing: 1px; backdrop-filter: blur(10px); z-index: 1000; animation: toastIn 0.3s ease-out; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* Bottom Sheet (Oracle Menu) */
+.bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
+.bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--charcoal); border-top: 1px solid rgba(201,169,110,0.15); border-radius: 20px 20px 0 0; z-index: 901; transform: translateY(100%); transition: transform 0.3s ease; max-height: 70vh; display: flex; flex-direction: column; }
+.bottom-sheet.open { transform: translateY(0); }
+.bottom-sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 12px auto; }
+.bottom-sheet-body { padding: 8px 20px 24px; overflow-y: auto; }
+.sheet-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+.sheet-item:last-child { border-bottom: none; }
+.sheet-item .sheet-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(201,169,110,0.08); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 16px; }
+.sheet-item span { font-size: 15px; }
+.sheet-item .arrow { margin-left: auto; color: var(--text-muted); font-size: 18px; }
+
+/* Light Mode - Command Center */
+.light-bg { background: var(--marble); color: var(--text-dark); }
+.light-header { padding: 12px 20px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10; }
+.light-header .logo { font-size: 20px; font-weight: 500; color: var(--charcoal); letter-spacing: 4px; }
+.light-header .nav-tabs { display: flex; gap: 2px; }
+.light-header .nav-tab { padding: 8px 14px; border-radius: var(--radius-md); font-size: 13px; color: var(--text-muted); cursor: pointer; transition: var(--transition); border: none; background: transparent; }
+.light-header .nav-tab:hover { color: var(--text-dark); background: rgba(0,0,0,0.04); }
+.light-header .nav-tab.active { color: var(--text-dark); background: rgba(0,0,0,0.06); font-weight: 500; }
+.light-main { flex: 1; overflow-y: auto; padding: 20px; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; }
+.dashboard-card { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); }
+.dashboard-card:hover { box-shadow: var(--shadow-md); }
+.dashboard-card .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.dashboard-card .metric { font-size: 32px; font-weight: 500; color: var(--text-dark); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.dashboard-card .metric-label { font-size: 13px; color: var(--text-muted); }
+.dashboard-card .metric-change { font-size: 13px; font-weight: 500; margin-top: 6px; }
+.metric-change.up { color: var(--success); }
+.metric-change.down { color: var(--danger); }
+.list-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.list-item:last-child { border-bottom: none; }
+.list-item .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-light), var(--gold)); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: var(--charcoal); flex-shrink: 0; }
+.list-item .info { flex: 1; min-width: 0; }
+.list-item h5 { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-item p { font-size: 12px; color: var(--text-muted); margin: 0; }
+.list-item .badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; flex-shrink: 0; }
+
+/* Tables */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.data-table th { text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.data-table td { padding: 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.data-table tr:hover td { background: rgba(0,0,0,0.02); }
+.data-table .job-id { font-family: var(--kimi-font-mono, monospace); font-size: 11px; color: var(--gold-dark); font-weight: 500; }
+
+/* Modals */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal { background: var(--charcoal-light); border: 1px solid rgba(201,169,110,0.2); border-radius: var(--radius-lg); width: 100%; max-width: 520px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.2s ease; }
+.light-bg .modal { background: #fff; border-color: rgba(0,0,0,0.1); }
+.modal-overlay.active .modal { transform: scale(1); }
+.modal-header { padding: 18px 20px; border-bottom: 1px solid rgba(201,169,110,0.1); display: flex; align-items: center; justify-content: space-between; }
+.light-bg .modal-header { border-color: rgba(0,0,0,0.06); }
+.modal-header h3 { font-size: 17px; font-weight: 500; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid rgba(201,169,110,0.1); display: flex; justify-content: flex-end; gap: 10px; }
+.light-bg .modal-footer { border-color: rgba(0,0,0,0.06); }
+
+/* Drawer */
+.drawer { position: fixed; top: 0; right: 0; width: 380px; max-width: 90vw; height: 100%; background: var(--charcoal-light); border-left: 1px solid rgba(201,169,110,0.15); z-index: 1001; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; }
+.light-bg .drawer { background: #fff; border-color: rgba(0,0,0,0.08); }
+.drawer.open { transform: translateX(0); }
+.drawer-header { padding: 18px 20px; border-bottom: 1px solid rgba(201,169,110,0.1); display: flex; align-items: center; justify-content: space-between; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+
+/* Approval Inbox */
+.approval-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.1); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; }
+.approval-item .approval-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.approval-item .approval-type { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; background: rgba(201,169,110,0.1); color: var(--gold); }
+.approval-item h5 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.approval-item p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.approval-actions { display: flex; gap: 6px; }
+
+/* Activity Log */
+.activity-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.activity-item .time { font-size: 11px; color: var(--text-muted); width: 55px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.activity-item .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.activity-item .content { flex: 1; }
+.activity-item .content p { font-size: 13px; margin: 0; }
+.activity-item .content .meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Founder Console */
+.founder-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.1); border-radius: var(--radius-md); padding: 18px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 500; color: var(--gold-light); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.stat-card .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+/* Utilities */
+.text-gold { color: var(--gold); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.w-full { width: 100%; }
+.hidden { display: none !important; }
+.empty-state { text-align: center; padding: 50px 24px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+.empty-state h3 { font-size: 17px; font-weight: 500; margin-bottom: 6px; color: var(--text-light); }
+.light-bg .empty-state h3 { color: var(--text-dark); }
+.tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; }
+.tag-gold { background: rgba(201,169,110,0.12); color: var(--gold); }
+.tag-green { background: rgba(68,170,102,0.12); color: var(--success); }
+.tag-red { background: rgba(204,68,68,0.12); color: var(--danger); }
+.tag-blue { background: rgba(68,136,170,0.12); color: var(--info); }
+.tag-gray { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+
+/* Mobile nav */
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); border-top: 1px solid rgba(0,0,0,0.06); padding: 6px 12px; z-index: 100; }
+.mobile-nav .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px; color: var(--text-muted); font-size: 10px; cursor: pointer; border: none; background: none; }
+.mobile-nav .nav-item.active { color: var(--charcoal); font-weight: 500; }
+.mobile-nav .nav-item svg { width: 20px; height: 20px; }
+
+/* Suggestion pills */
+.suggestion-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; justify-content: center; }
+.suggestion-pill { padding: 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,169,110,0.15); border-radius: 20px; font-size: 12px; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+.suggestion-pill:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,0.05); }
+
+/* Section header in light mode */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-header h2 { font-size: 20px; font-weight: 500; }
+.section-header .actions { display: flex; gap: 8px; }
+
+/* Filters */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-chip { padding: 6px 14px; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 20px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+.filter-chip:hover { border-color: var(--gold-dark); }
+.filter-chip.active { background: var(--charcoal); color: var(--gold); border-color: var(--charcoal); }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: rgba(201,169,110,0.15); }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 2px solid var(--charcoal); }
+.timeline-item.completed::before { background: var(--success); }
+.timeline-item.pending::before { background: var(--warning); }
+.timeline-item h5 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.timeline-item p { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+@media (max-width: 768px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .service-grid { grid-template-columns: 1fr; }
+  .onboarding-body { padding: 20px 16px; }
+  .orb-container { width: 160px; height: 160px; }
+  .orb { width: 120px; height: 120px; }
+  .light-header .nav-tabs { display: none; }
+  .drawer { width: 100%; max-width: 100%; }
+  .mobile-nav { display: flex; }
+  .light-main { padding-bottom: 70px; }
+  .founder-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ============================================
+// ZEUS - Core State & Helpers
+// ============================================
+const STORAGE_KEY = 'zeus_data_v1';
+function gid() { return 'id_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now(); }
+function genJobId() { const y = new Date().getFullYear().toString().slice(-2); const s = Math.floor(Math.random()*9000)+1000; return 'ZEU-'+y+'-'+s; }
+function fc(a, c) { return (c||'AED') + ' ' + (a||0).toLocaleString(); }
+function fd(d) { if(!d) return ''; const x=new Date(d); return x.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function fdt(d) { if(!d) return ''; const x=new Date(d); return x.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function nw() { return new Date().toISOString(); }
+function defState() { return { currentUser:null, currentWorkspace:null, view:'auth', mode:'dark', subView:'dashboard', users:[], workspaces:[], clients:[], venues:[], inquiries:[], bookings:[], jobs:[], invoices:[], payments:[], expenses:[], subscriptions:[], approvals:[], activities:[], integrations:[], settings:{}, demoMode:false, onboardingStep:0, oracleCards:[] }; }
+let state = defState();
+function loadState() { try { const s=localStorage.getItem(STORAGE_KEY); if(s){ const p=JSON.parse(s); state={...defState(),...p}; } }catch(e){} }
+function saveState() { try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){} }
+function resetState() { state=defState(); saveState(); }
+
+function logActivity(action,entityType,entityId,details){
+  state.activities.unshift({id:gid(),workspaceId:state.currentWorkspace?.id,action,entityType,entityId,details,userId:state.currentUser?.id,timestamp:nw()});
+  if(state.activities.length>200) state.activities=state.activities.slice(0,200);
+  saveState();
+}
+function addApproval(type,title,description,entityId,entityType){
+  const a={id:gid(),workspaceId:state.currentWorkspace?.id,type,title,description,entityId,entityType,status:'pending',createdAt:nw(),createdBy:state.currentUser?.id};
+  state.approvals.unshift(a); saveState(); return a;
+}
+function resolveApproval(id,res){
+  const a=state.approvals.find(x=>x.id===id); if(a){a.status=res;a.resolvedAt=nw();a.resolvedBy=state.currentUser?.id;saveState();}
+}
+
+// ============================================
+// DEMO DATA
+// ============================================
+function seedDemo(){
+  const ws={id:'ws_demo',name:'Dubai Nights Entertainment',ownerId:'user_demo',currency:'AED',timezone:'Asia/Dubai',brandColor:'#C9A96E',logo:null,services:['DJ','MC','Equipment Rental'],rates:{djBase:2000,mcBase:3500,equipBase:800,djMcCombo:5000,depositPercent:50,paymentTerms:7},approvals:{client_messages:'approval',invoices:'approval',discounts:'approval',public_content:'approval',booking_changes:'approval',refunds:'never',rate_changes:'never'},onboardingComplete:true,createdAt:nw()};
+  const clients=[
+    {id:'cl_1',workspaceId:'ws_demo',name:'Soho Garden',type:'venue',email:'events@sohogarden.ae',phone:'+971 4 123 4567',city:'Dubai',country:'UAE',notes:'Premium rooftop venue',createdAt:nw()},
+    {id:'cl_2',workspaceId:'ws_demo',name:'Atlantis The Palm',type:'venue',email:'events@atlantis.com',phone:'+971 4 426 0000',city:'Dubai',country:'UAE',notes:'Luxury resort events',createdAt:nw()},
+    {id:'cl_3',workspaceId:'ws_demo',name:'Emirates Airlines',type:'corporate',email:'corporate.events@emirates.com',phone:'+971 4 295 4000',city:'Dubai',country:'UAE',notes:'Annual gala client',createdAt:nw()},
+    {id:'cl_4',workspaceId:'ws_demo',name:'Private Client - Ahmed',type:'private',email:'ahmed@email.com',phone:'+971 50 123 4567',city:'Dubai',country:'UAE',notes:'Wedding client',createdAt:nw()},
+  ];
+  const venues=[
+    {id:'vn_1',workspaceId:'ws_demo',name:'Soho Garden',address:'Meydan Racecourse, Dubai',capacity:500,contactName:'Sarah',contactPhone:'+971 4 123 4567',notes:'Outdoor terrace, bring backup equipment',createdAt:nw()},
+    {id:'vn_2',workspaceId:'ws_demo',name:'Atlantis Ballroom',address:'Crescent Rd, Palm Jumeirah',capacity:1200,contactName:'James',contactPhone:'+971 4 426 0000',notes:'Full AV setup available',createdAt:nw()},
+  ];
+  const inquiries=[
+    {id:'in_1',workspaceId:'ws_demo',clientId:'cl_1',venueId:'vn_1',eventDate:'2026-09-15',eventType:'Corporate Party',services:['DJ','Equipment Rental'],guestCount:300,budget:4000,status:'qualified',notes:'End of summer party',createdAt:nw(),assignedTo:'user_demo'},
+    {id:'in_2',workspaceId:'ws_demo',clientId:'cl_3',venueId:'vn_2',eventDate:'2026-10-20',eventType:'Annual Gala',services:['DJ','MC'],guestCount:800,budget:8000,status:'negotiating',notes:'Black tie event',createdAt:nw(),assignedTo:'user_demo'},
+    {id:'in_3',workspaceId:'ws_demo',clientId:'cl_2',venueId:'vn_2',eventDate:'2026-11-05',eventType:'Product Launch',services:['DJ','MC','Equipment Rental'],guestCount:600,budget:6000,status:'new',notes:'New product line launch',createdAt:nw(),assignedTo:'user_demo'},
+  ];
+  const jobs=[
+    {id:'job_1',workspaceId:'ws_demo',jobId:'ZEU-26-0042',clientId:'cl_1',venueId:'vn_1',inquiryId:'in_1',title:'Soho Garden Summer Closing',eventDate:'2026-09-15',eventType:'Corporate Party',services:['DJ','Equipment Rental'],status:'music_prep',totalValue:2800,deposit:1400,balance:1400,createdAt:nw(),updatedAt:nw()},
+    {id:'job_2',workspaceId:'ws_demo',jobId:'ZEU-26-0043',clientId:'cl_3',venueId:'vn_2',inquiryId:'in_2',title:'Emirates Annual Gala 2026',eventDate:'2026-10-20',eventType:'Annual Gala',services:['DJ','MC'],status:'booking_confirmed',totalValue:5500,deposit:2750,balance:2750,createdAt:nw(),updatedAt:nw()},
+    {id:'job_3',workspaceId:'ws_demo',jobId:'ZEU-26-0041',clientId:'cl_4',venueId:null,inquiryId:null,title:'Ahmed Wedding Reception',eventDate:'2026-08-28',eventType:'Wedding',services:['DJ'],status:'completed',totalValue:2000,deposit:1000,balance:0,createdAt:nw(),updatedAt:nw()},
+    {id:'job_4',workspaceId:'ws_demo',jobId:'ZEU-26-0044',clientId:'cl_2',venueId:'vn_2',inquiryId:'in_3',title:'Atlantis Product Launch',eventDate:'2026-11-05',eventType:'Product Launch',services:['DJ','MC','Equipment Rental'],status:'inquiry',totalValue:0,deposit:0,balance:0,createdAt:nw(),updatedAt:nw()},
+  ];
+  const invoices=[
+    {id:'inv_1',workspaceId:'ws_demo',jobId:'job_1',clientId:'cl_1',invoiceNumber:'INV-26-0089',amount:2800,status:'sent',dueDate:'2026-09-08',items:[{description:'DJ Services - Soho Garden Summer Closing',quantity:1,rate:2000,total:2000},{description:'Equipment Rental',quantity:1,rate:800,total:800}],createdAt:nw()},
+    {id:'inv_2',workspaceId:'ws_demo',jobId:'job_2',clientId:'cl_3',invoiceNumber:'INV-26-0090',amount:5500,status:'draft',dueDate:'2026-10-13',items:[{description:'DJ + MC Services - Emirates Gala',quantity:1,rate:5500,total:5500}],createdAt:nw()},
+    {id:'inv_3',workspaceId:'ws_demo',jobId:'job_3',clientId:'cl_4',invoiceNumber:'INV-26-0088',amount:2000,status:'paid',dueDate:'2026-08-21',items:[{description:'DJ Services - Wedding Reception',quantity:1,rate:2000,total:2000}],createdAt:nw()},
+  ];
+  const payments=[
+    {id:'pay_1',workspaceId:'ws_demo',invoiceId:'inv_3',jobId:'job_3',amount:1000,method:'bank_transfer',status:'completed',receivedAt:'2026-08-14',notes:'Deposit',createdAt:nw()},
+    {id:'pay_2',workspaceId:'ws_demo',invoiceId:'inv_3',jobId:'job_3',amount:1000,method:'bank_transfer',status:'completed',receivedAt:'2026-08-29',notes:'Final payment',createdAt:nw()},
+  ];
+  const expenses=[
+    {id:'exp_1',workspaceId:'ws_demo',category:'Equipment',description:'Backup speaker rental',amount:300,date:'2026-08-10',jobId:'job_3',createdAt:nw()},
+    {id:'exp_2',workspaceId:'ws_demo',category:'Transport',description:'Fuel and parking',amount:150,date:'2026-08-14',jobId:'job_3',createdAt:nw()},
+    {id:'exp_3',workspaceId:'ws_demo',category:'Software',description:'Rekordbox subscription',amount:120,date:'2026-08-01',jobId:null,createdAt:nw()},
+    {id:'exp_4',workspaceId:'ws_demo',category:'Marketing',description:'Business cards print',amount:85,date:'2026-08-05',jobId:null,createdAt:nw()},
+  ];
+  const approvals=[
+    {id:'app_1',workspaceId:'ws_demo',type:'invoice',title:'Invoice INV-26-0090 for Emirates Gala',description:'DJ + MC services totaling AED 5,500. Due date: Oct 13.',entityId:'inv_2',entityType:'invoice',status:'pending',createdAt:nw(),createdBy:'user_demo'},
+    {id:'app_2',workspaceId:'ws_demo',type:'discount',title:'10% discount requested for Atlantis launch',description:'Client requesting AED 600 discount on product launch package.',entityId:'job_4',entityType:'job',status:'pending',createdAt:nw(),createdBy:'user_demo'},
+  ];
+  const activities=[
+    {id:'act_1',workspaceId:'ws_demo',action:'created',entityType:'job',entityId:'job_1',details:'Job ZEU-26-0042 created from inquiry',userId:'user_demo',timestamp:'2026-08-10T10:00:00Z'},
+    {id:'act_2',workspaceId:'ws_demo',action:'updated',entityType:'job',entityId:'job_1',details:'Status changed to music_prep',userId:'user_demo',timestamp:'2026-08-12T14:30:00Z'},
+    {id:'act_3',workspaceId:'ws_demo',action:'created',entityType:'invoice',entityId:'inv_1',details:'Invoice INV-26-0089 generated',userId:'user_demo',timestamp:'2026-08-13T09:00:00Z'},
+    {id:'act_4',workspaceId:'ws_demo',action:'payment_received',entityType:'payment',entityId:'pay_2',details:'Final payment of AED 1,000 received for wedding job',userId:'user_demo',timestamp:'2026-08-29T16:00:00Z'},
+    {id:'act_5',workspaceId:'ws_demo',action:'inquiry_received',entityType:'inquiry',entityId:'in_3',details:'New inquiry from Atlantis The Palm for product launch',userId:'user_demo',timestamp:'2026-08-14T11:00:00Z'},
+  ];
+  const integrations=[
+    {id:'int_1',workspaceId:'ws_demo',name:'Gmail',type:'email',status:'demo',capabilities:[{name:'Read emails',status:'demo'},{name:'Send emails',status:'unsupported'}],createdAt:nw()},
+    {id:'int_2',workspaceId:'ws_demo',name:'Google Calendar',type:'calendar',status:'demo',capabilities:[{name:'Read availability',status:'demo'},{name:'Create event',status:'demo'},{name:'Modify event',status:'unsupported'}],createdAt:nw()},
+    {id:'int_3',workspaceId:'ws_demo',name:'Notion',type:'productivity',status:'unsupported',capabilities:[],createdAt:nw()},
+    {id:'int_4',workspaceId:'ws_demo',name:'Spotify',type:'music',status:'demo',capabilities:[{name:'Read playlists',status:'demo'}],createdAt:nw()},
+    {id:'int_5',workspaceId:'ws_demo',name:'Canva',type:'design',status:'unsupported',capabilities:[],createdAt:nw()},
+  ];
+  state.workspaces.push(ws);
+  state.clients.push(...clients);
+  state.venues.push(...venues);
+  state.inquiries.push(...inquiries);
+  state.jobs.push(...jobs);
+  state.invoices.push(...invoices);
+  state.payments.push(...payments);
+  state.expenses.push(...expenses);
+  state.approvals.push(...approvals);
+  state.activities.push(...activities);
+  state.integrations.push(...integrations);
+  saveState();
+}
+
+// ============================================
+// RENDER ENGINE
+// ============================================
+const appEl = document.getElementById('app');
+function render(){
+  appEl.innerHTML='';
+  if(state.view==='auth') renderAuth();
+  else if(state.view==='onboarding') renderOnboarding();
+  else if(state.view==='oracle') renderOracle();
+  else if(state.view==='command') renderCommand();
+  else if(state.view==='founder') renderFounder();
+}
+
+// ============================================
+// AUTH
+// ============================================
+function renderAuth(){
+  const div=document.createElement('div');
+  div.className='page auth-bg active';
+  div.innerHTML=`<div class="auth-container">
+    <div class="zeus-logo">
+      <h1>Z<span style="color:var(--gold);font-size:0.9em;display:inline-block;transform:translateY(-2px)">&#9889;</span>US</h1>
+      <p>You DJ. ZEUS runs the business.</p>
+    </div>
+    <div class="auth-form">
+      <div id="auth-form-content">
+        <div class="input-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"></div>
+        <div class="input-group"><label>Password</label><input type="password" id="auth-password" placeholder="Min 6 characters"></div>
+        <button class="btn btn-primary" onclick="handleLogin()">Sign in</button>
+      </div>
+      <div class="auth-toggle"><span id="auth-toggle-text">New to ZEUS? <a onclick="toggleAuthMode()">Create account</a></span></div>
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(201,169,110,0.1);text-align:center;">
+        <button class="btn btn-secondary btn-sm" onclick="enterDemo()" style="width:100%;">Explore Demo Workspace</button>
+      </div>
+    </div>
+  </div>`;
+  appEl.appendChild(div);
+}
+let authMode='login';
+function toggleAuthMode(){
+  authMode=authMode==='login'?'register':'login';
+  const content=document.getElementById('auth-form-content');
+  const toggle=document.getElementById('auth-toggle-text');
+  if(authMode==='register'){
+    content.innerHTML=`<div class="input-group"><label>DJ Name</label><input type="text" id="auth-name" placeholder="Your DJ name"></div><div class="input-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"></div><div class="input-group"><label>Password</label><input type="password" id="auth-password" placeholder="Min 6 characters"></div><button class="btn btn-primary" onclick="handleRegister()">Create account</button>`;
+    toggle.innerHTML='Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
+  } else {
+    content.innerHTML=`<div class="input-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"></div><div class="input-group"><label>Password</label><input type="password" id="auth-password" placeholder="Min 6 characters"></div><button class="btn btn-primary" onclick="handleLogin()">Sign in</button>`;
+    toggle.innerHTML='New to ZEUS? <a onclick="toggleAuthMode()">Create account</a>';
+  }
+}
+function handleLogin(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  if(!email||!password){alert('Please enter email and password');return;}
+  const user=state.users.find(u=>u.email===email);
+  if(!user){alert('User not found. Please create an account.');return;}
+  if(user.password!==password){alert('Incorrect password');return;}
+  state.currentUser=user;
+  const ws=state.workspaces.find(w=>w.ownerId===user.id);
+  if(ws){state.currentWorkspace=ws;if(ws.onboardingComplete){state.view=state.mode==='dark'?'oracle':'command';}else{state.view='onboarding';state.onboardingStep=0;}}
+  else{state.view='onboarding';state.onboardingStep=0;}
+  saveState();render();
+}
+function handleRegister(){
+  const name=document.getElementById('auth-name').value.trim();
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  if(!name||!email||!password){alert('Please fill all fields');return;}
+  if(password.length<6){alert('Password must be at least 6 characters');return;}
+  if(state.users.find(u=>u.email===email)){alert('Email already registered');return;}
+  const user={id:gid(),name,email,password,role:'dj',createdAt:nw()};
+  state.users.push(user);state.currentUser=user;
+  state.view='onboarding';state.onboardingStep=0;
+  saveState();render();
+}
+function enterDemo(){
+  if(!state.workspaces.find(w=>w.id==='ws_demo')) seedDemo();
+  state.currentUser={id:'user_demo',name:'Demo DJ',email:'demo@zeus.app',role:'dj'};
+  state.currentWorkspace=state.workspaces.find(w=>w.id==='ws_demo');
+  state.demoMode=true;state.view=state.mode==='dark'?'oracle':'command';
+  saveState();render();
+}
+function logout(){state.currentUser=null;state.currentWorkspace=null;state.demoMode=false;state.view='auth';saveState();render();}
+
+// ============================================
+// ONBOARDING
+// ============================================
+const OB_STEPS=['Welcome','Identity','Brand','Location','Services','Rates','Approvals','Required Connections','Optional Connections','Test Connections','Ready'];
+function renderOnboarding(){
+  const step=state.onboardingStep;
+  const div=document.createElement('div');
+  div.className='page onboarding-bg active';
+  div.innerHTML=`<div class="onboarding-header">
+    <div class="logo-small">ZEUS</div>
+    <div class="progress-dots">${OB_STEPS.map((_,i)=>`<div class="progress-dot ${i<=step?'active':''}"></div>`).join('')}</div>
+    <div style="width:60px;text-align:right;"><span style="color:var(--gold);font-size:13px;">${step+1}/${OB_STEPS.length}</span></div>
+  </div>
+  <div class="onboarding-body" id="onboarding-body">${getOBContent(step)}</div>
+  <div class="onboarding-footer">
+    <button class="btn btn-secondary btn-sm" onclick="prevOB()" ${step===0?'style="visibility:hidden"':''}>Back</button>
+    <button class="btn btn-primary btn-sm" onclick="nextOB()">${step===OB_STEPS.length-1?'Enter ZEUS':'Continue'}</button>
+  </div>`;
+  appEl.appendChild(div);
+}
+function getOBContent(step){
+  const ws=state.currentWorkspace||{};
+  switch(step){
+    case 0: return `<div class="onboarding-step"><h2>Welcome to ZEUS</h2><p>Your AI management team for the business behind the booth. Let's build your team in under 2 minutes.</p>
+      <div style="background:rgba(201,169,110,0.05);border:1px solid rgba(201,169,110,0.1);border-radius:12px;padding:24px;margin-top:20px;">
+        <h4 style="color:var(--gold);margin-bottom:14px;font-size:15px;">Your AI Team</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;">
+          <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span><span>ZEUS / Chief of Staff</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span><span>Booking Manager</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span><span>Music Director</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span><span>Creative Director</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span><span>Invoice Manager</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span><span>CFO</span></div>
+        </div>
+      </div></div>`;
+    case 1: return `<div class="onboarding-step"><h2>Your DJ Identity</h2><p>Tell us who you are behind the decks.</p>
+      <div class="input-group"><label>DJ / Business Name</label><input type="text" id="onb-name" value="${ws.name||''}" placeholder="e.g. Dubai Nights Entertainment"></div>
+      <div class="input-group"><label>Your Name</label><input type="text" id="onb-dj-name" value="${state.currentUser?.name||''}" placeholder="Your real name"></div>
+      <div class="input-group"><label>Bio / Tagline</label><input type="text" id="onb-bio" value="${ws.bio||''}" placeholder="e.g. Premium events, unforgettable nights"></div></div>`;
+    case 2: return `<div class="onboarding-step"><h2>Brand</h2><p>Set your visual identity.</p>
+      <div class="input-group"><label>Primary Color</label><input type="color" id="onb-color" value="${ws.brandColor||'#C9A96E'}" style="height:48px;cursor:pointer;padding:4px;"></div>
+      <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(201,169,110,0.2);border-radius:12px;padding:32px;text-align:center;margin-top:16px;">
+        <div style="font-size:32px;margin-bottom:8px;">&#128444;</div><p style="font-size:13px;color:var(--text-muted);">Logo upload coming soon. Using ZEUS default for now.</p>
+      </div></div>`;
+    case 3: return `<div class="onboarding-step"><h2>Location & Currency</h2><p>Where do you operate?</p>
+      <div class="input-group"><label>City</label><input type="text" id="onb-city" value="${ws.city||''}" placeholder="e.g. Dubai"></div>
+      <div class="input-group"><label>Country</label><input type="text" id="onb-country" value="${ws.country||''}" placeholder="e.g. UAE"></div>
+      <div class="input-group"><label>Currency</label><select id="onb-currency"><option value="AED" ${ws.currency==='AED'?'selected':''}>AED - UAE Dirham</option><option value="USD" ${ws.currency==='USD'?'selected':''}>USD - US Dollar</option><option value="EUR" ${ws.currency==='EUR'?'selected':''}>EUR - Euro</option><option value="GBP" ${ws.currency==='GBP'?'selected':''}>GBP - British Pound</option></select></div>
+      <div class="input-group"><label>Timezone</label><select id="onb-timezone"><option value="Asia/Dubai" ${ws.timezone==='Asia/Dubai'?'selected':''}>Asia/Dubai</option><option value="Europe/London" ${ws.timezone==='Europe/London'?'selected':''}>Europe/London</option><option value="America/New_York" ${ws.timezone==='America/New_York'?'selected':''}>America/New_York</option></select></div></div>`;
+    case 4: return `<div class="onboarding-step"><h2>Services</h2><p>What do you offer? Select all that apply.</p>
+      <div class="service-grid">${['DJ','MC','Equipment Rental','DJ + MC Combo','Lighting','Photo Booth','Videography'].map(s=>`<div class="service-card ${(ws.services||[]).includes(s)?'selected':''}" onclick="toggleService(this,'${s}')"><div class="icon">${s==='DJ'?'&#127911;':s==='MC'?'&#127908;':s==='Equipment Rental'?'&#127899;':s==='DJ + MC Combo'?'&#127926;':s==='Lighting'?'&#128161;':s==='Photo Booth'?'&#128247;':'&#127909;'}</div><h4>${s}</h4></div>`).join('')}</div></div>`;
+    case 5: return `<div class="onboarding-step"><h2>Rates & Commercial Rules</h2><p>Set your baseline rates. You can always adjust per event.</p>
+      <div style="margin-bottom:14px;"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;"><input type="checkbox" id="onb-use-template" ${ws.useTemplate!==false?'checked':''} onchange="toggleTemplateRates()"> <span>Use Dubai starter template</span></label></div>
+      <div id="rate-inputs">
+        <div class="rate-row"><div class="rate-info"><h4>DJ Private / Corporate</h4><p>Base rate for standard DJ set</p></div><input type="number" id="rate-dj" value="${(ws.rates||{}).djBase||2000}"></div>
+        <div class="rate-row"><div class="rate-info"><h4>MC Services</h4><p>Master of ceremonies</p></div><input type="number" id="rate-mc" value="${(ws.rates||{}).mcBase||3500}"></div>
+        <div class="rate-row"><div class="rate-info"><h4>Equipment Rental</h4><p>Base equipment package</p></div><input type="number" id="rate-equip" value="${(ws.rates||{}).equipBase||800}"></div>
+        <div class="rate-row"><div class="rate-info"><h4>DJ + MC Combo</h4><p>Combined package rate</p></div><input type="number" id="rate-combo" value="${(ws.rates||{}).djMcCombo||5000}"></div>
+        <div class="rate-row"><div class="rate-info"><h4>Deposit %</h4><p>Required upfront</p></div><input type="number" id="rate-deposit" value="${(ws.rates||{}).depositPercent||50}" max="100"></div>
+      </div></div>`;
+    case 6: return `<div class="onboarding-step"><h2>Approval Rules</h2><p>What requires your explicit approval?</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+        ${[{k:'client_messages',l:'Client messages',d:'approval'},{k:'invoices',l:'Invoice sending',d:'approval'},{k:'discounts',l:'Discounts & negotiations',d:'approval'},{k:'public_content',l:'Public social content',d:'approval'},{k:'booking_changes',l:'Booking term changes',d:'approval'},{k:'refunds',l:'Refunds',d:'never'},{k:'rate_changes',l:'Master rate changes',d:'never'}].map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);border-radius:10px;"><span style="font-size:14px;">${r.l}</span><select id="approval-${r.k}" style="width:140px;padding:8px 10px;background:rgba(0,0,0,0.3);border:1px solid rgba(201,169,110,0.2);border-radius:6px;color:var(--text-light);font-size:13px;"><option value="auto" ${(ws.approvals||{})[r.k]==='auto'?'selected':''}>Auto</option><option value="approval" ${((ws.approvals||{})[r.k]||r.d)==='approval'?'selected':''}>Approval required</option><option value="never" ${(ws.approvals||{})[r.k]==='never'?'selected':''}>Never auto</option></select></div>`).join('')}
+      </div></div>`;
+    case 7: return `<div class="onboarding-step"><h2>Required Connections</h2><p>Connect the tools ZEUS needs to run your business.</p>
+      <div class="integration-list">${[{n:'Gmail',i:'&#9993;',d:'Email integration'},{n:'Google Calendar',i:'&#128197;',d:'Schedule & availability'},{n:'Notion',i:'&#128220;',d:'Notes & databases'},{n:'Spotify',i:'&#127911;',d:'Music & playlists'},{n:'Canva',i:'&#127912;',d:'Design & content'}].map(x=>`<div class="integration-item"><div class="icon-box">${x.i}</div><div class="info"><h4>${x.n}</h4><p>${x.d}</p></div><span class="status status-demo">DEMO</span></div>`).join('')}</div></div>`;
+    case 8: return `<div class="onboarding-step"><h2>Optional Connections</h2><p>Enhance ZEUS with these additional integrations.</p>
+      <div class="integration-list">${[{n:'Instagram / Meta',i:'&#128247;',d:'Social media management'},{n:'Video Editing',i:'&#127909;',d:'Content production'},{n:'Record Pools',i:'&#127926;',d:'Music sourcing'},{n:'Rekordbox',i:'&#127911;',d:'Library sync'},{n:'Cloud Storage',i:'&#9729;',d:'Media backup'}].map(x=>`<div class="integration-item"><div class="icon-box">${x.i}</div><div class="info"><h4>${x.n}</h4><p>${x.d}</p></div><span class="status status-optional">Optional</span></div>`).join('')}</div></div>`;
+    case 9: return `<div class="onboarding-step"><h2>Test Connections</h2><p>Verify each integration before going live.</p>
+      <div class="integration-list">${[{n:'Gmail',s:'demo',t:['Read emails: DEMO','Send emails: Unsupported']},{n:'Google Calendar',s:'demo',t:['Read availability: DEMO','Create event: DEMO','Modify event: Unsupported']},{n:'Notion',s:'unsupported',t:['Not available in beta']},{n:'Spotify',s:'demo',t:['Read playlists: DEMO']},{n:'Canva',s:'unsupported',t:['Coming soon']}].map(i=>`<div class="integration-item" style="flex-direction:column;align-items:flex-start;gap:6px;"><div style="display:flex;align-items:center;gap:12px;width:100%;"><div class="info" style="flex:1;"><h4>${i.n}</h4></div><span class="status status-${i.s}">${i.s.toUpperCase()}</span></div><div style="padding-left:52px;display:flex;flex-direction:column;gap:3px;">${i.t.map(t=>`<span style="font-size:12px;color:var(--text-muted);">&#8226; ${t}</span>`).join('')}</div></div>`).join('')}</div>
+      <p style="margin-top:14px;font-size:12px;color:var(--text-muted);">Note: Real OAuth integrations require backend services. These are labeled DEMO and cannot transition to LIVE in this beta.</p></div>`;
+    case 10: return `<div class="onboarding-step"><h2>Your Workspace is Ready</h2><p>ZEUS has configured your business operating system. Your AI team is standing by.</p>
+      <div style="text-align:center;margin-top:36px;"><div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;">&#9889;</div><p style="color:var(--gold);font-size:17px;font-weight:500;">Consider it done.</p></div></div>`;
+    default: return '';
+  }
+}
+function toggleService(el,s){el.classList.toggle('selected');}
+function toggleTemplateRates(){const use=document.getElementById('onb-use-template').checked;if(use){document.getElementById('rate-dj').value=2000;document.getElementById('rate-mc').value=3500;document.getElementById('rate-equip').value=800;document.getElementById('rate-combo').value=5000;document.getElementById('rate-deposit').value=50;}}
+function nextOB(){saveOBData();if(state.onboardingStep<OB_STEPS.length-1){state.onboardingStep++;saveState();render();}else{finishOnboarding();}}
+function prevOB(){if(state.onboardingStep>0){saveOBData();state.onboardingStep--;saveState();render();}}
+function saveOBData(){
+  const step=state.onboardingStep;
+  let ws=state.currentWorkspace;
+  if(!ws){ws={id:gid(),ownerId:state.currentUser.id,createdAt:nw()};state.workspaces.push(ws);state.currentWorkspace=ws;}
+  if(step===1){ws.name=document.getElementById('onb-name')?.value||ws.name;ws.bio=document.getElementById('onb-bio')?.value||ws.bio;state.currentUser.name=document.getElementById('onb-dj-name')?.value||state.currentUser.name;}
+  if(step===2){ws.brandColor=document.getElementById('onb-color')?.value||ws.brandColor;}
+  if(step===3){ws.city=document.getElementById('onb-city')?.value||ws.city;ws.country=document.getElementById('onb-country')?.value||ws.country;ws.currency=document.getElementById('onb-currency')?.value||ws.currency;ws.timezone=document.getElementById('onb-timezone')?.value||ws.timezone;}
+  if(step===4){ws.services=Array.from(document.querySelectorAll('.service-card.selected')).map(el=>el.querySelector('h4').textContent);}
+  if(step===5){ws.rates={djBase:parseInt(document.getElementById('rate-dj')?.value)||2000,mcBase:parseInt(document.getElementById('rate-mc')?.value)||3500,equipBase:parseInt(document.getElementById('rate-equip')?.value)||800,djMcCombo:parseInt(document.getElementById('rate-combo')?.value)||5000,depositPercent:parseInt(document.getElementById('rate-deposit')?.value)||50};ws.useTemplate=document.getElementById('onb-use-template')?.checked!==false;}
+  if(step===6){ws.approvals={};['client_messages','invoices','discounts','public_content','booking_changes','refunds','rate_changes'].forEach(k=>{const el=document.getElementById('approval-'+k);if(el)ws.approvals[k]=el.value;});}
+  saveState();
+}
+function finishOnboarding(){state.currentWorkspace.onboardingComplete=true;state.view=state.mode==='dark'?'oracle':'command';saveState();render();}
+
+// ============================================
+// ORACLE DARK MODE
+// ============================================
+function renderOracle(){
+  const div=document.createElement('div');
+  div.className='page oracle-bg active';
+  div.id='oracle-page';
+  div.innerHTML=`<div class="lightning-flash" id="lightning-flash"></div>
+    <div class="oracle-header">
+      <div class="logo">ZEUS</div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="toggleMode()" title="Switch to Command Center">&#9728;</button>
+        <button class="icon-btn" onclick="openOracleMenu()" title="Menu">&#9776;</button>
+      </div>
+    </div>
+    <div class="oracle-main">
+      <div class="orb-container">
+        <div class="orb-ring"></div><div class="orb-ring"></div><div class="orb-ring"></div>
+        <div class="orb" id="zeus-orb" onclick="activateOrb()">
+          <div class="orb-inner"></div>
+        </div>
+      </div>
+      <div class="orb-label" id="orb-label">Tap the orb or type below</div>
+      <div class="voice-input-container" style="margin-top:28px;">
+        <div class="voice-input">
+          <input type="text" id="oracle-input" placeholder="Ask ZEUS anything..." onkeydown="if(event.key==='Enter')handleOracleQuery()">
+          <button class="mic-btn" onclick="handleOracleQuery()">&#10148;</button>
+        </div>
+      </div>
+      <div class="suggestion-pills">
+        <span class="suggestion-pill" onclick="quickAsk('What is on my schedule this weekend?')">Schedule</span>
+        <span class="suggestion-pill" onclick="quickAsk('How much money am I owed?')">Money owed</span>
+        <span class="suggestion-pill" onclick="quickAsk('Prepare an invoice for Soho Garden')">Invoice</span>
+        <span class="suggestion-pill" onclick="quickAsk('How was my business this month?')">Business</span>
+        <span class="suggestion-pill" onclick="quickAsk('Show me my top clients')">Top clients</span>
+      </div>
+      <div class="oracle-cards" id="oracle-cards"></div>
+    </div>
+    <div class="bottom-sheet-overlay" id="bs-overlay" onclick="closeOracleMenu()"></div>
+    <div class="bottom-sheet" id="bs-menu">
+      <div class="bottom-sheet-handle"></div>
+      <div class="bottom-sheet-body">
+        <div class="sheet-item" onclick="switchView('command');closeOracleMenu();"><div class="sheet-icon">&#128202;</div><span>Command Center</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='jobs';closeOracleMenu();render();"><div class="sheet-icon">&#128188;</div><span>Jobs</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='bookings';closeOracleMenu();render();"><div class="sheet-icon">&#128197;</div><span>Bookings</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='invoices';closeOracleMenu();render();"><div class="sheet-icon">&#128178;</div><span>Invoices</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='clients';closeOracleMenu();render();"><div class="sheet-icon">&#128101;</div><span>Clients & Venues</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='approvals';closeOracleMenu();render();"><div class="sheet-icon">&#9989;</div><span>Approval Inbox</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='cfo';closeOracleMenu();render();"><div class="sheet-icon">&#128176;</div><span>CFO Report</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='integrations';closeOracleMenu();render();"><div class="sheet-icon">&#128279;</div><span>Integrations</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="switchView('command');state.subView='settings';closeOracleMenu();render();"><div class="sheet-icon">&#9881;</div><span>Settings</span><span class="arrow">&#8250;</span></div>
+        <div class="sheet-item" onclick="logout();closeOracleMenu();"><div class="sheet-icon">&#8592;</div><span>Sign out</span><span class="arrow">&#8250;</span></div>
+      </div>
+    </div>`;
+  appEl.appendChild(div);
+  renderOracleCards();
+}
+function activateOrb(){
+  const orb=document.getElementById('zeus-orb');
+  const flash=document.getElementById('lightning-flash');
+  orb.classList.add('pulse');
+  flash.classList.add('active');
+  setTimeout(()=>{orb.classList.remove('pulse');flash.classList.remove('active');},3000);
+}
+function openOracleMenu(){document.getElementById('bs-overlay').classList.add('active');document.getElementById('bs-menu').classList.add('open');}
+function closeOracleMenu(){document.getElementById('bs-overlay').classList.remove('active');document.getElementById('bs-menu').classList.remove('open');}
+function quickAsk(q){document.getElementById('oracle-input').value=q;handleOracleQuery();}
+function handleOracleQuery(){
+  const input=document.getElementById('oracle-input');
+  const query=input.value.trim();
+  if(!query)return;
+  input.value='';
+  const flash=document.getElementById('lightning-flash');
+  flash.classList.add('active');
+  setTimeout(()=>flash.classList.remove('active'),3000);
+  processOracleQuery(query);
+}
+function processOracleQuery(query){
+  const q=query.toLowerCase();
+  let response=null;
+  const ws=state.currentWorkspace;
+  const wsJobs=state.jobs.filter(j=>j.workspaceId===ws?.id);
+  const wsInvoices=state.invoices.filter(i=>i.workspaceId===ws?.id);
+  const wsPayments=state.payments.filter(p=>p.workspaceId===ws?.id);
+  const wsExpenses=state.expenses.filter(e=>e.workspaceId===ws?.id);
+  const wsClients=state.clients.filter(c=>c.workspaceId===ws?.id);
+  const wsApprovals=state.approvals.filter(a=>a.workspaceId===ws?.id&&a.status==='pending');
+
+  if(q.includes('schedule')||q.includes('weekend')||q.includes('this week')||q.includes('upcoming')){
+    const upcoming=wsJobs.filter(j=>j.status!=='completed'&&new Date(j.eventDate)>=new Date()).sort((a,b)=>new Date(a.eventDate)-new Date(b.eventDate)).slice(0,3);
+    response={role:'Booking Manager',title:'Upcoming Bookings',content:upcoming.length?upcoming.map(j=>`&#8226; <strong>${j.title}</strong> - ${fd(j.eventDate)} (${j.status.replace('_',' ')})`).join('<br>'):'No upcoming bookings.',actions:[{label:'View all',action:()=>{switchView('command');state.subView='jobs';render();}}]};
+  }
+  else if(q.includes('money')||q.includes('owed')||q.includes('outstanding')||q.includes('receivable')){
+    const outstanding=wsInvoices.filter(i=>i.status==='sent'||i.status==='draft').reduce((s,i)=>s+i.amount,0);
+    response={role:'CFO',title:'Money Outstanding',content:`You are owed <strong>${fc(outstanding,ws?.currency)}</strong> across ${wsInvoices.filter(i=>i.status==='sent'||i.status==='draft').length} open invoices.`,actions:[{label:'View invoices',action:()=>{switchView('command');state.subView='invoices';render();}}]};
+  }
+  else if(q.includes('invoice')&&(q.includes('create')||q.includes('prepare')||q.includes('make'))){
+    const pendingJobs=wsJobs.filter(j=>j.status!=='completed'&&!wsInvoices.find(i=>i.jobId===j.id));
+    response={role:'Invoice Manager',title:'Create Invoice',content:pendingJobs.length?`Ready to invoice:<br>${pendingJobs.map(j=>`&#8226; ${j.title} - ${fc(j.totalValue,ws?.currency)}`).join('<br>')}`:'All active jobs already have invoices.',actions:pendingJobs.length?[{label:'Create now',action:()=>{if(pendingJobs[0])createInvoiceForJob(pendingJobs[0].id);}}]:[]};
+  }
+  else if(q.includes('content')||q.includes('post')||q.includes('social')||q.includes('creative')){
+    response={role:'Creative Director',title:'Content Schedule',content:'&#8226; Wedding highlight reel - Ahmed (pending edit)<br>&#8226; Soho Garden Summer Closing - capture plan ready<br>&#8226; Monthly mix promo - due Friday',actions:[{label:'Open creative',action:()=>{switchView('command');state.subView='creative';render();}}]};
+  }
+  else if(q.includes('business')||q.includes('month')||q.includes('revenue')||q.includes('profit')){
+    const revenue=wsPayments.reduce((s,p)=>s+p.amount,0);
+    const costs=wsExpenses.reduce((s,e)=>s+e.amount,0);
+    response={role:'CFO',title:'Business This Month',content:`Revenue: <strong>${fc(revenue,ws?.currency)}</strong><br>Expenses: <strong>${fc(costs,ws?.currency)}</strong><br>Net: <strong style="color:${revenue>=costs?'var(--success)':'var(--danger)'}">${fc(revenue-costs,ws?.currency)}</strong>`,actions:[{label:'Full report',action:()=>{switchView('command');state.subView='cfo';render();}}]};
+  }
+  else if(q.includes('top client')||q.includes('best client')){
+    const cr={};
+    wsPayments.forEach(p=>{const job=wsJobs.find(j=>j.id===p.jobId);if(job){const cl=wsClients.find(c=>c.id===job.clientId);if(cl){cr[cl.name]=(cr[cl.name]||0)+p.amount;}}});
+    const sorted=Object.entries(cr).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    response={role:'CFO',title:'Top Clients',content:sorted.length?sorted.map((c,i)=>`${i+1}. <strong>${c[0]}</strong> - ${fc(c[1],ws?.currency)}`).join('<br>'):'No payment data yet.',actions:[{label:'View clients',action:()=>{switchView('command');state.subView='clients';render();}}]};
+  }
+  else if(q.includes('approval')||q.includes('pending')){
+    response={role:'Chief of Staff',title:'Pending Approvals',content:wsApprovals.length?wsApprovals.map(a=>`&#8226; <strong>${a.title}</strong> (${a.type})`).join('<br>'):'No pending approvals.',actions:[{label:'Open inbox',action:()=>{switchView('command');state.subView='approvals';render();}}]};
+  }
+  else if(q.includes('music')||q.includes('track')||q.includes('playlist')||q.includes('crate')){
+    response={role:'Music Director',title:'Music Readiness',content:'&#8226; Soho Garden - 80% ready (need 12 more tracks)<br>&#8226; Emirates Gala - 45% ready (genre brief pending)<br>&#8226; Ahmed Wedding - Complete',actions:[{label:'Music prep',action:()=>{switchView('command');state.subView='music';render();}}]};
+  }
+  else {
+    response={role:'Chief of Staff',title:'ZEUS',content:'I understand. I am routing your request to the right agent. For specific queries, try asking about your schedule, money owed, invoices, content, business performance, or top clients.',actions:[]};
+  }
+
+  if(response){
+    state.oracleCards.unshift(response);
+    if(state.oracleCards.length>3) state.oracleCards=state.oracleCards.slice(0,3);
+    renderOracleCards();
+    setTimeout(()=>showToast('Consider it done.'),800);
+  }
+}
+function renderOracleCards(){
+  const container=document.getElementById('oracle-cards');
+  if(!container)return;
+  container.innerHTML=state.oracleCards.map((card,i)=>{
+    const top=10+i*110;
+    const left=i%2===0?'20px':'auto';
+    const right=i%2===0?'auto':'20px';
+    return `<div class="oracle-card" style="top:${top}px;${left!=='auto'?`left:${left}`:`right:${right}`}">
+      <div class="card-header"><div class="card-icon">${card.role==='CFO'?'&#128176;':card.role==='Booking Manager'?'&#128197;':card.role==='Invoice Manager'?'&#128178;':card.role==='Creative Director'?'&#127912;':card.role==='Music Director'?'&#127911;':'&#9889;'}</div><span style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;">${card.role}</span></div>
+      <h4>${card.title}</h4>
+      <p>${card.content}</p>
+      ${card.actions.length?`<div class="card-actions">${card.actions.map(a=>`<button class="btn btn-xs btn-secondary" onclick="(${a.action.toString()})()">${a.label}</button>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function showToast(msg){
+  const existing=document.querySelector('.completion-toast');
+  if(existing)existing.remove();
+  const toast=document.createElement('div');
+  toast.className='completion-toast';
+  toast.textContent=msg;
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+}
+function toggleMode(){state.mode=state.mode==='dark'?'light':'dark';state.view=state.mode==='dark'?'oracle':'command';saveState();render();}
+function switchView(v){state.view=v;saveState();}
+
+// ============================================
+// COMMAND CENTER (LIGHT MODE)
+// ============================================
+function renderCommand(){
+  const div=document.createElement('div');
+  div.className='page light-bg active';
+  div.id='command-page';
+  const tabs=[{id:'dashboard',label:'Dashboard'},{id:'jobs',label:'Jobs'},{id:'bookings',label:'Bookings'},{id:'invoices',label:'Invoices'},{id:'clients',label:'Clients'},{id:'approvals',label:'Approvals'},{id:'cfo',label:'CFO'},{id:'integrations',label:'Integrations'}];
+  div.innerHTML=`<div class="light-header">
+    <div class="logo">ZEUS</div>
+    <div class="nav-tabs">${tabs.map(t=>`<button class="nav-tab ${state.subView===t.id?'active':''}" onclick="setSubView('${t.id}')">${t.label}</button>`).join('')}</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="icon-btn" style="border-color:rgba(0,0,0,0.1);color:var(--charcoal);" onclick="toggleMode()" title="Switch to Oracle">&#9790;</button>
+      <button class="icon-btn" style="border-color:rgba(0,0,0,0.1);color:var(--charcoal);" onclick="logout()" title="Sign out">&#8592;</button>
+    </div>
+  </div>
+  <div class="light-main" id="command-main">${getCommandContent()}</div>
+  <div class="mobile-nav">${tabs.map(t=>`<button class="nav-item ${state.subView===t.id?'active':''}" onclick="setSubView('${t.id}')">${t.label}</button>`).join('')}</div>`;
+  appEl.appendChild(div);
+}
+function setSubView(v){state.subView=v;saveState();render();}
+function getCommandContent(){
+  const ws=state.currentWorkspace;
+  const wsJobs=state.jobs.filter(j=>j.workspaceId===ws?.id);
+  const wsInvoices=state.invoices.filter(i=>i.workspaceId===ws?.id);
+  const wsPayments=state.payments.filter(p=>p.workspaceId===ws?.id);
+  const wsExpenses=state.expenses.filter(e=>e.workspaceId===ws?.id);
+  const wsClients=state.clients.filter(c=>c.workspaceId===ws?.id);
+  const wsVenues=state.venues.filter(v=>v.workspaceId===ws?.id);
+  const wsInquiries=state.inquiries.filter(i=>i.workspaceId===ws?.id);
+  const wsApprovals=state.approvals.filter(a=>a.workspaceId===ws?.id);
+  const wsIntegrations=state.integrations.filter(i=>i.workspaceId===ws?.id);
+  const wsActivities=state.activities.filter(a=>a.workspaceId===ws?.id).slice(0,20);
+
+  switch(state.subView){
+    case 'dashboard': return renderDashboard(wsJobs,wsInvoices,wsPayments,wsExpenses,wsClients,wsApprovals,wsActivities);
+    case 'jobs': return renderJobs(wsJobs,wsClients,wsVenues);
+    case 'bookings': return renderBookings(wsJobs,wsClients,wsVenues);
+    case 'invoices': return renderInvoices(wsInvoices,wsClients,wsJobs);
+    case 'clients': return renderClients(wsClients,wsVenues);
+    case 'approvals': return renderApprovals(wsApprovals);
+    case 'cfo': return renderCFO(wsPayments,wsExpenses,wsJobs,wsClients);
+    case 'integrations': return renderIntegrations(wsIntegrations);
+    case 'settings': return renderSettings(ws);
+    case 'creative': return renderCreative();
+    case 'music': return renderMusic();
+    case 'founder': return renderFounderContent();
+    default: return renderDashboard(wsJobs,wsInvoices,wsPayments,wsExpenses,wsClients,wsApprovals,wsActivities);
+  }
+}
+
+function renderDashboard(jobs,invoices,payments,expenses,clients,approvals,activities){
+  const outstanding=invoices.filter(i=>i.status==='sent'||i.status==='draft').reduce((s,i)=>s+i.amount,0);
+  const paidRevenue=payments.reduce((s,p)=>s+p.amount,0);
+  const totalExpenses=expenses.reduce((s,e)=>s+e.amount,0);
+  const upcoming=jobs.filter(j=>j.status!=='completed'&&new Date(j.eventDate)>=new Date()).sort((a,b)=>new Date(a.eventDate)-new Date(b.eventDate)).slice(0,3);
+  const pendingApprovals=approvals.filter(a=>a.status==='pending');
+  return `<div class="dashboard-grid">
+    <div class="dashboard-card">
+      <div class="card-title">Needs attention ${pendingApprovals.length?`<span class="tag tag-red">${pendingApprovals.length}</span>`:''}</div>
+      ${pendingApprovals.length?pendingApprovals.slice(0,2).map(a=>`<div class="list-item"><div class="avatar" style="background:rgba(204,68,68,0.1);color:var(--danger);font-size:12px;">!</div><div class="info"><h5>${a.title}</h5><p>${a.type} approval</p></div></div>`).join(''):`<div class="empty-state" style="padding:20px;"><p style="font-size:13px;">All clear. Nothing needs your attention.</p></div>`}
+      ${pendingApprovals.length?`<button class="btn btn-sm btn-secondary" style="width:100%;margin-top:8px;" onclick="setSubView('approvals')">View all approvals</button>`:''}
+    </div>
+    <div class="dashboard-card">
+      <div class="card-title">Upcoming bookings</div>
+      ${upcoming.length?upcoming.map(j=>{
+        const cl=clients.find(c=>c.id===j.clientId);
+        return `<div class="list-item"><div class="avatar">${(cl?.name||'').charAt(0)}</div><div class="info"><h5>${j.title}</h5><p>${fd(j.eventDate)} ${cl?'- '+cl.name:''}</p></div><span class="badge badge-info">${j.status.replace('_',' ')}</span></div>`;
+      }).join(''):`<div class="empty-state" style="padding:20px;"><p style="font-size:13px;">No upcoming bookings.</p></div>`}
+    </div>
+    <div class="dashboard-card">
+      <div class="card-title">Money outstanding</div>
+      <div class="metric">${fc(outstanding,state.currentWorkspace?.currency)}</div>
+      <div class="metric-label">Across ${invoices.filter(i=>i.status==='sent'||i.status==='draft').length} open invoices</div>
+      ${outstanding>0?`<button class="btn btn-sm btn-secondary mt-3" style="width:100%;" onclick="setSubView('invoices')">View invoices</button>`:''}
+    </div>
+    <div class="dashboard-card">
+      <div class="card-title">Paid revenue</div>
+      <div class="metric">${fc(paidRevenue,state.currentWorkspace?.currency)}</div>
+      <div class="metric-label">This period</div>
+      <div class="metric-change up">+12% vs last month</div>
+    </div>
+    <div class="dashboard-card">
+      <div class="card-title">Music readiness</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${jobs.filter(j=>j.status==='music_prep'||j.status==='booking_confirmed').slice(0,3).map(j=>`<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span>${j.title}</span><span style="color:var(--gold-dark);">${Math.floor(Math.random()*40+60)}%</span></div><div style="height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.floor(Math.random()*40+60)}%;background:linear-gradient(90deg,var(--gold),var(--gold-dark));border-radius:3px;"></div></div></div>`).join('')||'<p style="font-size:13px;color:var(--text-muted);">No active music prep.</p>'}
+      </div>
+    </div>
+    <div class="dashboard-card">
+      <div class="card-title">Recent activity</div>
+      ${activities.slice(0,4).map(a=>`<div class="activity-item" style="padding:8px 0;"><div class="time">${fdt(a.timestamp).split(',')[0]}</div><div class="content"><p>${a.details}</p><div class="meta">${a.action} ${a.entityType}</div></div></div>`).join('')||'<p style="font-size:13px;color:var(--text-muted);">No recent activity.</p>'}
+    </div>
+  </div>`;
+}
+
+function renderJobs(jobs,clients,venues){
+  const statusFilter=state.jobFilter||'all';
+  const filtered=statusFilter==='all'?jobs:jobs.filter(j=>j.status===statusFilter);
+  return `<div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header"><h2>Jobs</h2><button class="btn btn-sm btn-primary" onclick="openModal('new-job')">+ New job</button></div>
+    <div class="filter-bar">
+      ${[{id:'all',l:'All'},{id:'inquiry',l:'Inquiry'},{id:'booking_confirmed',l:'Confirmed'},{id:'music_prep',l:'Music Prep'},{id:'content_prep',l:'Content Prep'},{id:'completed',l:'Completed'}].map(f=>`<button class="filter-chip ${statusFilter===f.id?'active':''}" onclick="setJobFilter('${f.id}')">${f.l}</button>`).join('')}
+    </div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:12px;overflow:hidden;">
+      <table class="data-table">
+        <thead><tr><th>Job ID</th><th>Title</th><th>Client</th><th>Date</th><th>Value</th><th>Status</th><th></th></tr></thead>
+        <tbody>${filtered.map(j=>{
+          const cl=clients.find(c=>c.id===j.clientId);
+          return `<tr><td class="job-id">${j.jobId}</td><td><strong>${j.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${j.eventType}</span></td><td>${cl?.name||'-'}</td><td>${fd(j.eventDate)}</td><td>${fc(j.totalValue,state.currentWorkspace?.currency)}</td><td><span class="tag ${j.status==='completed'?'tag-green':j.status==='inquiry'?'tag-gray':j.status==='booking_confirmed'?'tag-blue':'tag-gold'}">${j.status.replace('_',' ')}</span></td><td><button class="btn btn-xs btn-secondary" onclick="viewJob('${j.id}')">View</button></td></tr>`;
+        }).join('')||'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">No jobs found.</td></tr>'}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function setJobFilter(f){state.jobFilter=f;saveState();render();}
+
+function renderBookings(jobs,clients,venues){
+  const confirmed=jobs.filter(j=>j.status==='booking_confirmed'||j.status==='music_prep'||j.status==='content_prep');
+  const upcoming=confirmed.filter(j=>new Date(j.eventDate)>=new Date()).sort((a,b)=>new Date(a.eventDate)-new Date(b.eventDate));
+  return `<div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header"><h2>Bookings</h2><button class="btn btn-sm btn-primary" onclick="openModal('new-booking')">+ New booking</button></div>
+    <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+      ${upcoming.map(j=>{
+        const cl=clients.find(c=>c.id===j.clientId);
+        const vn=venues.find(v=>v.id===j.venueId);
+        return `<div class="dashboard-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div><span class="job-id">${j.jobId}</span><h3 style="font-size:16px;font-weight:500;margin-top:4px;">${j.title}</h3></div>
+            <span class="tag tag-blue">${j.status.replace('_',' ')}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-muted);">
+            <div>&#128197; ${fd(j.eventDate)}</div>
+            <div>&#128101; ${cl?.name||'TBD'}</div>
+            ${vn?`<div>&#128205; ${vn.name}</div>`:''}
+            <div>&#128176; ${fc(j.totalValue,state.currentWorkspace?.currency)}</div>
+          </div>
+          <div class="timeline" style="margin-top:16px;padding-left:16px;">
+            <div class="timeline-item completed"><h5>Inquiry</h5></div>
+            <div class="timeline-item completed"><h5>Booking confirmed</h5></div>
+            <div class="timeline-item ${j.status==='music_prep'||j.status==='content_prep'||j.status==='completed'?'completed':'pending'}"><h5>Music prep</h5></div>
+            <div class="timeline-item ${j.status==='content_prep'||j.status==='completed'?'completed':'pending'}"><h5>Content prep</h5></div>
+            <div class="timeline-item ${j.status==='completed'?'completed':'pending'}"><h5>Completed</h5></div>
+          </div>
+        </div>`;
+      }).join('')||'<div class="dashboard-card" style="grid-column:1/-1;"><div class="empty-state"><h3>No confirmed bookings</h3><p>Create a booking from an inquiry or start a new job.</p></div></div>'}
+    </div>
+  </div>`;
+}
+
+function renderInvoices(invoices,clients,jobs){
+  const statusFilter=state.invoiceFilter||'all';
+  const filtered=statusFilter==='all'?invoices:invoices.filter(i=>i.status===statusFilter);
+  return `<div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header"><h2>Invoices</h2><button class="btn btn-sm btn-primary" onclick="openModal('new-invoice')">+ New invoice</button></div>
+    <div class="filter-bar">
+      ${[{id:'all',l:'All'},{id:'draft',l:'Draft'},{id:'sent',l:'Sent'},{id:'paid',l:'Paid'},{id:'overdue',l:'Overdue'}].map(f=>`<button class="filter-chip ${statusFilter===f.id?'active':''}" onclick="setInvoiceFilter('${f.id}')">${f.l}</button>`).join('')}
+    </div>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:12px;overflow:hidden;">
+      <table class="data-table">
+        <thead><tr><th>Invoice #</th><th>Job</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr></thead>
+        <tbody>${filtered.map(i=>{
+          const cl=clients.find(c=>c.id===i.clientId);
+          const job=jobs.find(j=>j.id===i.jobId);
+          const isOverdue=new Date(i.dueDate)<new Date()&&i.status!=='paid';
+          return `<tr><td class="job-id">${i.invoiceNumber}</td><td>${job?.title||'-'}</td><td>${cl?.name||'-'}</td><td>${fc(i.amount,state.currentWorkspace?.currency)}</td><td ${isOverdue?'style="color:var(--danger)"':''}>${fd(i.dueDate)}${isOverdue?' (overdue)':''}</td><td><span class="tag ${i.status==='paid'?'tag-green':i.status==='draft'?'tag-gray':i.status==='sent'?'tag-blue':'tag-red'}">${i.status}</span></td><td><button class="btn btn-xs btn-secondary" onclick="viewInvoice('${i.id}')">View</button></td></tr>`;
+        }).join('')||'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">No invoices found.</td></tr>'}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function setInvoiceFilter(f){state.invoiceFilter=f;saveState();render();}
+
+function renderClients(clients,venues){
+  return `<div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header"><h2>Clients & Venues</h2><button class="btn btn-sm btn-primary" onclick="openModal('new-client')">+ New client</button></div>
+    <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
+      <div class="dashboard-card" style="grid-column:1/-1;"><h3 style="font-size:15px;margin-bottom:12px;">Clients</h3>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Type</th><th>Email</th><th>City</th><th></th></tr></thead>
+          <tbody>${clients.map(c=>`<tr><td><strong>${c.name}</strong></td><td><span class="tag tag-gray">${c.type}</span></td><td>${c.email}</td><td>${c.city||'-'}</td><td><button class="btn btn-xs btn-secondary" onclick="viewClient('${c.id}')">View</button></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted);">No clients yet.</td></tr>'}</tbody>
+        </table>
+      </div>
+      <div class="dashboard-card" style="grid-column:1/-1;"><h3 style="font-size:15px;margin-bottom:12px;">Venues</h3>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Address</th><th>Capacity</th><th>Contact</th><th></th></tr></thead>
+          <tbody>${venues.map(v=>`<tr><td><strong>${v.name}</strong></td><td>${v.address||'-'}</td><td>${v.capacity||'-'}</td><td>${v.contactName||'-'}</td><td><button class="btn btn-xs btn-secondary" onclick="viewVenue('${v.id}')">View</button></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted);">No venues yet.</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderApprovals(approvals){
+  const pending=approvals.filter(a=>a.status==='pending');
+  const resolved=approvals.filter(a=>a.status!=='pending');
+  return `<div style="max-width:800px;margin:0 auto;">
+    <div class="section-header"><h2>Approval Inbox</h2><span class="tag tag-gold">${pending.length} pending</span></div>
+    <h3 style="font-size:14px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">Pending</h3>
+    ${pending.length?pending.map(a=>`<div class="approval-item">
+      <div class="approval-header"><span class="approval-type">${a.type}</span><span style="font-size:11px;color:var(--text-muted);">${fdt(a.createdAt)}</span></div>
+      <h5>${a.title}</h5>
+      <p>${a.description}</p>
+      <div class="approval-actions">
+        <button class="btn btn-xs btn-success" onclick="approveItem('${a.id}')">Approve</button>
+        <button class="btn btn-xs btn-secondary" onclick="editApproval('${a.id}')">Edit</button>
+        <button class="btn btn-xs btn-danger" onclick="rejectItem('${a.id}')">Reject</button>
+      </div>
+    </div>`).join(''):`<div class="empty-state"><h3>All caught up</h3><p>No pending approvals.</p></div>`}
+    ${resolved.length?`<h3 style="font-size:14px;color:var(--text-muted);margin:24px 0 12px;text-transform:uppercase;letter-spacing:1px;">Resolved</h3>
+    ${resolved.slice(0,5).map(a=>`<div class="approval-item" style="opacity:0.6;">
+      <div class="approval-header"><span class="approval-type">${a.type}</span><span class="tag ${a.status==='approved'?'tag-green':'tag-red'}">${a.status}</span></div>
+      <h5>${a.title}</h5>
+      <p>${a.description}</p>
+    </div>`).join('')}`:''}
+  </div>`;
+}
+function approveItem(id){resolveApproval(id,'approved');logActivity('approved','approval',id,'Approval granted');showToast('Approved. Consider it done.');render();}
+function rejectItem(id){resolveApproval(id,'rejected');logActivity('rejected','approval',id,'Approval rejected');showToast('Rejected.');render();}
+function editApproval(id){alert('Edit functionality would open a detailed editor for this approval.');}
+
+function renderCFO(payments,expenses,jobs,clients){
+  const revenue=payments.reduce((s,p)=>s+p.amount,0);
+  const costs=expenses.reduce((s,e)=>s+e.amount,0);
+  const net=revenue-costs;
+  const byCategory={};
+  expenses.forEach(e=>{byCategory[e.category]=(byCategory[e.category]||0)+e.amount;});
+  const clientRevenue={};
+  payments.forEach(p=>{const job=jobs.find(j=>j.id===p.jobId);if(job){const cl=clients.find(c=>c.id===job.clientId);if(cl){clientRevenue[cl.name]=(clientRevenue[cl.name]||0)+p.amount;}}});
+  const sortedClients=Object.entries(clientRevenue).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  return `<div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header"><h2>CFO Report</h2><span class="tag tag-gold">${state.currentWorkspace?.currency||'AED'}</span></div>
+    <div class="dashboard-grid">
+      <div class="dashboard-card"><div class="card-title">Total revenue</div><div class="metric">${fc(revenue,state.currentWorkspace?.currency)}</div><div class="metric-label">From ${payments.length} payments</div></div>
+      <div class="dashboard-card"><div class="card-title">Total expenses</div><div class="metric">${fc(costs,state.currentWorkspace?.currency)}</div><div class="metric-label">From ${expenses.length} transactions</div></div>
+      <div class="dashboard-card"><div class="card-title">Net profit</div><div class="metric" style="color:${net>=0?'var(--success)':'var(--danger)'}">${fc(net,state.currentWorkspace?.currency)}</div><div class="metric-label">${net>=0?'Profit':'Loss'} margin: ${revenue>0?Math.round(net/revenue*100):0}%</div></div>
+      <div class="dashboard-card"><div class="card-title">Active jobs</div><div class="metric">${jobs.filter(j=>j.status!=='completed').length}</div><div class="metric-label">${jobs.filter(j=>j.status==='completed').length} completed</div></div>
+    </div>
+    <div class="dashboard-grid" style="margin-top:16px;">
+      <div class="dashboard-card"><div class="card-title">Expenses by category</div>
+        ${Object.entries(byCategory).map(([cat,amt])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04);font-size:14px;"><span>${cat}</span><strong>${fc(amt,state.currentWorkspace?.currency)}</strong></div>`).join('')||'<p style="font-size:13px;color:var(--text-muted);">No expenses recorded.</p>'}
+      </div>
+      <div class="dashboard-card"><div class="card-title">Top clients by revenue</div>
+        ${sortedClients.length?sortedClients.map((c,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04);font-size:14px;"><span>${i+1}. ${c[0]}</span><strong>${fc(c[1],state.currentWorkspace?.currency)}</strong></div>`).join(''):'<p style="font-size:13px;color:var(--text-muted);">No payment data yet.</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderIntegrations(integrations){
+  return `<div style="max-width:800px;margin:0 auto;">
+    <div class="section-header"><h2>Integrations</h2></div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Every integration must pass: REQUESTED &#8594; AUTHORIZED &#8594; READ TEST &#8594; WRITE TEST &#8594; LIVE</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${integrations.map(int=>`<div class="dashboard-card" style="padding:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;border-radius:8px;background:rgba(201,169,110,0.1);display:flex;align-items:center;justify-content:center;font-size:16px;">${int.type==='email'?'&#9993;':int.type==='calendar'?'&#128197;':int.type==='music'?'&#127911;':int.type==='design'?'&#127912;':'&#128220;'}</div>
+            <div><h4 style="font-size:15px;">${int.name}</h4><p style="font-size:12px;color:var(--text-muted);">${int.type}</p></div>
+          </div>
+          <span class="tag ${int.status==='live'?'tag-green':int.status==='demo'?'tag-warning':int.status==='unsupported'?'tag-red':'tag-gray'}">${int.status.toUpperCase()}</span>
+        </div>
+        ${int.capabilities.length?`<div style="display:flex;flex-direction:column;gap:6px;padding-left:48px;">
+          ${int.capabilities.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;"><span>${c.name}</span><span class="tag ${c.status==='live'?'tag-green':c.status==='demo'?'tag-warning':'tag-red'}" style="font-size:10px;">${c.status.toUpperCase()}</span></div>`).join('')}
+        </div>`:'<p style="font-size:12px;color:var(--text-muted);padding-left:48px;">No capabilities available.</p>'}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderSettings(ws){
+  return `<div style="max-width:600px;margin:0 auto;">
+    <div class="section-header"><h2>Settings</h2></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="dashboard-card"><h3 style="font-size:15px;margin-bottom:12px;">Business Profile</h3>
+        <div class="input-group"><label>Business Name</label><input type="text" value="${ws?.name||''}" id="set-name"></div>
+        <div class="input-group"><label>Currency</label><select id="set-currency"><option value="AED" ${ws?.currency==='AED'?'selected':''}>AED</option><option value="USD" ${ws?.currency==='USD'?'selected':''}>USD</option><option value="EUR" ${ws?.currency==='EUR'?'selected':''}>EUR</option><option value="GBP" ${ws?.currency==='GBP'?'selected':''}>GBP</option></select></div>
+        <button class="btn btn-sm btn-primary" onclick="saveSettings()">Save changes</button>
+      </div>
+      <div class="dashboard-card"><h3 style="font-size:15px;margin-bottom:12px;">Danger Zone</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Reset all data and start fresh. This cannot be undone.</p>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Are you sure? This will delete ALL data.')){resetState();render();}">Reset all data</button>
+      </div>
+      ${state.currentUser?.role==='founder'?`<div class="dashboard-card"><h3 style="font-size:15px;margin-bottom:12px;">Founder Console</h3><button class="btn btn-sm btn-primary" onclick="state.view='founder';saveState();render();">Open Founder Console</button></div>`:''}
+    </div>
+  </div>`;
+}
+function saveSettings(){
+  if(state.currentWorkspace){
+    state.currentWorkspace.name=document.getElementById('set-name')?.value||state.currentWorkspace.name;
+    state.currentWorkspace.currency=document.getElementById('set-currency')?.value||state.currentWorkspace.currency;
+    saveState();showToast('Settings saved.');render();
+  }
+}
+
+function renderCreative(){
+  return `<div style="max-width:800px;margin:0 auto;">
+    <div class="section-header"><h2>Creative Director</h2><button class="btn btn-sm btn-primary">+ New task</button></div>
+    <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+      <div class="dashboard-card"><div class="card-title">Edit queue</div>
+        <div class="list-item"><div class="avatar" style="background:rgba(201,169,110,0.1);color:var(--gold-dark);font-size:12px;">&#127909;</div><div class="info"><h5>Wedding highlight reel</h5><p>Ahmed - Due Aug 30</p></div><span class="badge badge-warning">Pending</span></div>
+        <div class="list-item"><div class="avatar" style="background:rgba(201,169,110,0.1);color:var(--gold-dark);font-size:12px;">&#128247;</div><div class="info"><h5>Soho Garden recap</h5><p>Sep 16</p></div><span class="badge badge-info">Planned</span></div>
+      </div>
+      <div class="dashboard-card"><div class="card-title">Publishing plan</div>
+        <div class="list-item"><div class="avatar" style="background:rgba(68,170,102,0.1);color:var(--success);font-size:12px;">&#10003;</div><div class="info"><h5>Monthly mix promo</h5><p>Instagram - Posted</p></div><span class="badge badge-success">Live</span></div>
+        <div class="list-item"><div class="avatar" style="background:rgba(202,170,68,0.1);color:var(--warning);font-size:12px;">&#9200;</div><div class="info"><h5>Behind the Booth BTS</h5><p>TikTok - Scheduled</p></div><span class="badge badge-warning">Scheduled</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderMusic(){
+  return `<div style="max-width:800px;margin:0 auto;">
+    <div class="section-header"><h2>Music Director</h2></div>
+    <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+      <div class="dashboard-card"><div class="card-title">Music readiness</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span>Soho Garden Summer Closing</span><span style="color:var(--gold-dark);">80%</span></div><div style="height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;width:80%;background:linear-gradient(90deg,var(--gold),var(--gold-dark));border-radius:3px;"></div></div><p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Need 12 more tracks for closing set</p></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span>Emirates Annual Gala</span><span style="color:var(--gold-dark);">45%</span></div><div style="height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;width:45%;background:linear-gradient(90deg,var(--gold),var(--gold-dark));border-radius:3px;"></div></div><p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Genre brief pending from client</p></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span>Ahmed Wedding</span><span style="color:var(--success);">100%</span></div><div style="height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;width:100%;background:var(--success);border-radius:3px;"></div></div><p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Complete - crate exported to USB</p></div>
+        </div>
+      </div>
+      <div class="dashboard-card"><div class="card-title">Client requests</div>
+        <div class="list-item"><div class="info"><h5>Soho Garden</h5><p>Deep house, minimal vocals</p></div></div>
+        <div class="list-item"><div class="info"><h5>Emirates Gala</h5><p>Corporate friendly, no explicit</p></div></div>
+        <div class="list-item"><div class="info"><h5>Ahmed Wedding</h5><p>Arabic pop, 90s hits, slow dances</p></div></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFounder(){
+  const div=document.createElement('div');
+  div.className='page light-bg active';
+  div.innerHTML=`<div class="light-header">
+    <div class="logo">ZEUS</div>
+    <div class="nav-tabs"><button class="nav-tab active">Founder Console</button></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="icon-btn" style="border-color:rgba(0,0,0,0.1);color:var(--charcoal);" onclick="state.view='command';state.subView='settings';saveState();render();">&#8592;</button>
+    </div>
+  </div>
+  <div class="light-main">${renderFounderContent()}</div>`;
+  appEl.appendChild(div);
+}
+
+function renderFounderContent(){
+  const allWorkspaces=state.workspaces;
+  const allJobs=state.jobs;
+  const allUsers=state.users;
+  const pendingApprovals=state.approvals.filter(a=>a.status==='pending');
+  const demoWorkspaces=allWorkspaces.filter(w=>w.id==='ws_demo').length;
+  return `<div style="max-width:1200px;margin:0 auto;">
+    <div class="section-header"><h2>Founder Console</h2><span class="tag tag-gold">Super Admin</span></div>
+    <div class="founder-grid">
+      <div class="stat-card"><div class="stat-value">${allWorkspaces.length}</div><div class="stat-label">Workspaces</div></div>
+      <div class="stat-card"><div class="stat-value">${allUsers.length}</div><div class="stat-label">Users</div></div>
+      <div class="stat-card"><div class="stat-value">${allJobs.length}</div><div class="stat-label">Total Jobs</div></div>
+      <div class="stat-card"><div class="stat-value">${pendingApprovals.length}</div><div class="stat-label">Pending Approvals</div></div>
+      <div class="stat-card"><div class="stat-value">${demoWorkspaces}</div><div class="stat-label">Demo Workspaces</div></div>
+      <div class="stat-card"><div class="stat-value">${state.integrations.filter(i=>i.status==='live').length}</div><div class="stat-label">Live Integrations</div></div>
+    </div>
+    <div class="dashboard-card" style="margin-bottom:16px;"><div class="card-title">Workspaces</div>
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Owner</th><th>Currency</th><th>Jobs</th><th>Onboarding</th><th></th></tr></thead>
+        <tbody>${allWorkspaces.map(w=>{
+          const owner=allUsers.find(u=>u.id===w.ownerId);
+          const jobCount=allJobs.filter(j=>j.workspaceId===w.id).length;
+          return `<tr><td><strong>${w.name}</strong>${w.id==='ws_demo'?' <span class="tag tag-warning" style="font-size:10px;">DEMO</span>':''}</td><td>${owner?.name||owner?.email||'Unknown'}</td><td>${w.currency}</td><td>${jobCount}</td><td><span class="tag ${w.onboardingComplete?'tag-green':'tag-red'}">${w.onboardingComplete?'Complete':'Pending'}</span></td><td><button class="btn btn-xs btn-secondary" onclick="viewWorkspace('${w.id}')">View</button></td></tr>`;
+        }).join('')||'<tr><td colspan="6" style="text-align:center;padding:30px;">No workspaces.</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="dashboard-card"><div class="card-title">System Activity</div>
+      ${state.activities.slice(0,10).map(a=>`<div class="activity-item"><div class="time">${fdt(a.timestamp).split(',')[0]}</div><div class="content"><p>${a.details}</p><div class="meta">${a.action} ${a.entityType} | ${a.workspaceId==='ws_demo'?'DEMO':a.workspaceId||'System'}</div></div></div>`).join('')||'<p style="font-size:13px;color:var(--text-muted);">No system activity.</p>'}
+    </div>
+  </div>`;
+}
+function viewWorkspace(id){alert('Workspace detail view would show full workspace data without exposing cross-workspace customer content.');}
+
+// ============================================
+// MODALS & ACTION HANDLERS
+// ============================================
+function openModal(type){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay active';
+  overlay.id='active-modal-overlay';
+  overlay.onclick=(e)=>{if(e.target===overlay)closeModal();};
+  let content='';
+  if(type==='new-job'){
+    const ws=state.currentWorkspace;
+    const clients=state.clients.filter(c=>c.workspaceId===ws?.id);
+    const venues=state.venues.filter(v=>v.workspaceId===ws?.id);
+    content=`<div class="modal-header"><h3>New Job</h3><button class="icon-btn" style="width:32px;height:32px;" onclick="closeModal()">&#10005;</button></div>
+      <div class="modal-body">
+        <div class="input-group"><label>Job Title</label><input type="text" id="new-job-title" placeholder="Event name"></div>
+        <div class="input-group"><label>Client</label><select id="new-job-client">${clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')||'<option>No clients</option>'}</select></div>
+        <div class="input-group"><label>Venue</label><select id="new-job-venue"><option value="">Select venue (optional)</option>${venues.map(v=>`<option value="${v.id}">${v.name}</option>`).join('')}</select></div>
+        <div class="input-group"><label>Event Date</label><input type="date" id="new-job-date"></div>
+        <div class="input-group"><label>Event Type</label><input type="text" id="new-job-type" placeholder="e.g. Wedding, Corporate Party"></div>
+        <div class="input-group"><label>Services</label><input type="text" id="new-job-services" placeholder="e.g. DJ, MC, Equipment"></div>
+        <div class="input-group"><label>Total Value</label><input type="number" id="new-job-value" placeholder="0"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button><button class="btn btn-primary btn-sm" onclick="createJob()">Create Job</button></div>`;
+  }
+  else if(type==='new-invoice'){
+    const ws=state.currentWorkspace;
+    const jobs=state.jobs.filter(j=>j.workspaceId===ws?.id&&j.status!=='completed');
+    const clients=state.clients.filter(c=>c.workspaceId===ws?.id);
+    content=`<div class="modal-header"><h3>New Invoice</h3><button class="icon-btn" style="width:32px;height:32px;" onclick="closeModal()">&#10005;</button></div>
+      <div class="modal-body">
+        <div class="input-group"><label>Job</label><select id="new-inv-job">${jobs.map(j=>`<option value="${j.id}">${j.jobId} - ${j.title}</option>`).join('')||'<option>No jobs</option>'}</select></div>
+        <div class="input-group"><label>Amount</label><input type="number" id="new-inv-amount" placeholder="0"></div>
+        <div class="input-group"><label>Due Date</label><input type="date" id="new-inv-due"></div>
+        <div class="input-group"><label>Description</label><textarea id="new-inv-desc" placeholder="Invoice description"></textarea></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button><button class="btn btn-primary btn-sm" onclick="createInvoice()">Create Invoice</button></div>`;
+  }
+  else if(type==='new-client'){
+    content=`<div class="modal-header"><h3>New Client</h3><button class="icon-btn" style="width:32px;height:32px;" onclick="closeModal()">&#10005;</button></div>
+      <div class="modal-body">
+        <div class="input-group"><label>Name</label><input type="text" id="new-client-name" placeholder="Client name"></div>
+        <div class="input-group"><label>Type</label><select id="new-client-type"><option value="private">Private</option><option value="corporate">Corporate</option><option value="venue">Venue</option></select></div>
+        <div class="input-group"><label>Email</label><input type="email" id="new-client-email" placeholder="email@example.com"></div>
+        <div class="input-group"><label>Phone</label><input type="text" id="new-client-phone" placeholder="+1 234 567 890"></div>
+        <div class="input-group"><label>City</label><input type="text" id="new-client-city" placeholder="City"></div>
+        <div class="input-group"><label>Notes</label><textarea id="new-client-notes" placeholder="Any notes..."></textarea></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button><button class="btn btn-primary btn-sm" onclick="createClient()">Save Client</button></div>`;
+  }
+  else if(type==='new-booking'){
+    content=`<div class="modal-header"><h3>New Booking</h3><button class="icon-btn" style="width:32px;height:32px;" onclick="closeModal()">&#10005;</button></div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Create a booking from an existing inquiry or start fresh.</p>
+        <div class="input-group"><label>From Inquiry (optional)</label><select id="new-book-inquiry"><option value="">Start fresh</option>${state.inquiries.filter(i=>i.workspaceId===state.currentWorkspace?.id).map(i=>`<option value="${i.id}">${i.eventType} - ${fd(i.eventDate)}</option>`).join('')}</select></div>
+        <div class="input-group"><label>Title</label><input type="text" id="new-book-title" placeholder="Booking title"></div>
+        <div class="input-group"><label>Event Date</label><input type="date" id="new-book-date"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button><button class="btn btn-primary btn-sm" onclick="createBooking()">Create Booking</button></div>`;
+  }
+  const modal=document.createElement('div');
+  modal.className='modal';
+  modal.innerHTML=content;
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+function closeModal(){const m=document.getElementById('active-modal-overlay');if(m)m.remove();}
+
+function createJob(){
+  const ws=state.currentWorkspace;
+  if(!ws)return;
+  const title=document.getElementById('new-job-title').value.trim();
+  const clientId=document.getElementById('new-job-client').value;
+  const venueId=document.getElementById('new-job-venue').value||null;
+  const date=document.getElementById('new-job-date').value;
+  const type=document.getElementById('new-job-type').value.trim();
+  const services=document.getElementById('new-job-services').value.trim();
+  const value=parseInt(document.getElementById('new-job-value').value)||0;
+  if(!title||!date){alert('Title and date are required');return;}
+  const job={id:gid(),workspaceId:ws.id,jobId:genJobId(),clientId,venueId,title,eventDate:date,eventType:type||'Event',services:services?services.split(',').map(s=>s.trim()):[],status:'inquiry',totalValue:value,deposit:0,balance:value,createdAt:nw(),updatedAt:nw()};
+  state.jobs.push(job);
+  logActivity('created','job',job.id,`Job ${job.jobId} created`);
+  saveState();closeModal();showToast('Job created. Consider it done.');render();
+}
+function createInvoice(){
+  const ws=state.currentWorkspace;
+  if(!ws)return;
+  const jobId=document.getElementById('new-inv-job').value;
+  const amount=parseInt(document.getElementById('new-inv-amount').value)||0;
+  const dueDate=document.getElementById('new-inv-due').value;
+  const desc=document.getElementById('new-inv-desc').value.trim();
+  const job=state.jobs.find(j=>j.id===jobId);
+  const clientId=job?.clientId;
+  if(!jobId||!amount||!dueDate){alert('Job, amount, and due date are required');return;}
+  const invNum='INV-26-'+(Math.floor(Math.random()*9000)+1000);
+  const inv={id:gid(),workspaceId:ws.id,jobId,clientId,invoiceNumber:invNum,amount,status:'draft',dueDate,items:[{description:desc||'Services',quantity:1,rate:amount,total:amount}],createdAt:nw()};
+  state.invoices.push(inv);
+  logActivity('created','invoice',inv.id,`Invoice ${invNum} created`);
+  saveState();closeModal();showToast('Invoice created. Consider it done.');render();
+}
+function createClient(){
+  const ws=state.currentWorkspace;
+  if(!ws)return;
+  const name=document.getElementById('new-client-name').value.trim();
+  const type=document.getElementById('new-client-type').value;
+  const email=document.getElementById('new-client-email').value.trim();
+  const phone=document.getElementById('new-client-phone').value.trim();
+  const city=document.getElementById('new-client-city').value.trim();
+  const notes=document.getElementById('new-client-notes').value.trim();
+  if(!name){alert('Name is required');return;}
+  const client={id:gid(),workspaceId:ws.id,name,type,email,phone,city,notes,createdAt:nw()};
+  state.clients.push(client);
+  logActivity('created','client',client.id,`Client ${name} created`);
+  saveState();closeModal();showToast('Client saved. Consider it done.');render();
+}
+function createBooking(){
+  const ws=state.currentWorkspace;
+  if(!ws)return;
+  const inquiryId=document.getElementById('new-book-inquiry').value||null;
+  const title=document.getElementById('new-book-title').value.trim();
+  const date=document.getElementById('new-book-date').value;
+  if(!title||!date){alert('Title and date are required');return;}
+  let clientId=null,venueId=null,eventType='Event',services=[],value=0;
+  if(inquiryId){
+    const inq=state.inquiries.find(i=>i.id===inquiryId);
+    if(inq){clientId=inq.clientId;venueId=inq.venueId;eventType=inq.eventType;services=inq.services;value=inq.budget||0;}
+  }
+  const job={id:gid(),workspaceId:ws.id,jobId:genJobId(),clientId,venueId,inquiryId,title,eventDate:date,eventType,services,status:'booking_confirmed',totalValue:value,deposit:0,balance:value,createdAt:nw(),updatedAt:nw()};
+  state.jobs.push(job);
+  logActivity('created','booking',job.id,`Booking ${job.jobId} created`);
+  saveState();closeModal();showToast('Booking created. Consider it done.');render();
+}
+function createInvoiceForJob(jobId){
+  const job=state.jobs.find(j=>j.id===jobId);
+  if(!job)return;
+  const ws=state.currentWorkspace;
+  const invNum='INV-26-'+(Math.floor(Math.random()*9000)+1000);
+  const inv={id:gid(),workspaceId:ws.id,jobId,clientId:job.clientId,invoiceNumber:invNum,amount:job.totalValue,status:'draft',dueDate:new Date(Date.now()+7*86400000).toISOString().split('T')[0],items:[{description:job.title,quantity:1,rate:job.totalValue,total:job.totalValue}],createdAt:nw()};
+  state.invoices.push(inv);
+  logActivity('created','invoice',inv.id,`Invoice ${invNum} created for job ${job.jobId}`);
+  saveState();showToast('Invoice created. Consider it done.');
+  if(state.view==='command')render();
+}
+
+function viewJob(id){
+  const job=state.jobs.find(j=>j.id===id);
+  if(!job)return;
+  const cl=state.clients.find(c=>c.id===job.clientId);
+  const vn=state.venues.find(v=>v.id===job.venueId);
+  alert(`Job: ${job.jobId}\nTitle: ${job.title}\nClient: ${cl?.name||'-'}\nVenue: ${vn?.name||'-'}\nDate: ${fd(job.eventDate)}\nStatus: ${job.status}\nValue: ${fc(job.totalValue,state.currentWorkspace?.currency)}\n\nFull job detail view would open here with timeline, notes, files, and actions.`);
+}
+function viewInvoice(id){
+  const inv=state.invoices.find(i=>i.id===id);
+  if(!inv)return;
+  alert(`Invoice: ${inv.invoiceNumber}\nAmount: ${fc(inv.amount,state.currentWorkspace?.currency)}\nStatus: ${inv.status}\nDue: ${fd(inv.dueDate)}\n\nFull invoice detail view would open here with PDF preview, send, and payment recording.`);
+}
+function viewClient(id){
+  const cl=state.clients.find(c=>c.id===id);
+  if(!cl)return;
+  alert(`Client: ${cl.name}\nType: ${cl.type}\nEmail: ${cl.email}\nPhone: ${cl.phone}\nCity: ${cl.city||'-'}\n\nFull client profile would open here with history, jobs, and communication.`);
+}
+function viewVenue(id){
+  const vn=state.venues.find(v=>v.id===id);
+  if(!vn)return;
+  alert(`Venue: ${vn.name}\nAddress: ${vn.address||'-'}\nCapacity: ${vn.capacity||'-'}\nContact: ${vn.contactName||'-'}\n\nFull venue profile would open here with map, history, and technical specs.`);
+}
+
+// ============================================
+// INIT
+// ============================================
+loadState();
+if(!state.currentUser){
+  render();
+} else {
+  if(state.currentWorkspace?.onboardingComplete){
+    state.view=state.mode==='dark'?'oracle':'command';
+  } else {
+    state.view='onboarding';
+  }
+  render();
+}
+</script>
+</body>
+</html>
