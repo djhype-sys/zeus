@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0d0d0d">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/192.png">
 <title>ZEUS - AI Business OS for DJs</title>
 <style>
 :root {
@@ -122,7 +124,7 @@ body {
 .icon-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,169,110,0.15); color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
 .icon-btn:hover { background: rgba(201,169,110,0.1); border-color: var(--gold); }
 .icon-btn svg { width: 20px; height: 20px; }
-.oracle-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 24px; }
+.oracle-main { overflow-y:auto; min-height:0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 24px; }
 .orb-container { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px; }
 .orb { width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, var(--gold-light), var(--gold) 40%, var(--gold-dark) 70%, #3a3020 100%); box-shadow: 0 0 60px rgba(201,169,110,0.3), 0 0 120px rgba(201,169,110,0.15), inset 0 0 40px rgba(255,255,255,0.1); position: relative; cursor: pointer; transition: var(--transition); }
 .orb:hover { transform: scale(1.05); box-shadow: 0 0 80px rgba(201,169,110,0.4), 0 0 160px rgba(201,169,110,0.2), inset 0 0 50px rgba(255,255,255,0.15); }
@@ -320,11 +322,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+.zeus-particle-button{border:0;background:transparent;cursor:pointer;padding:0;width:min(420px,80vw);height:280px;margin-bottom:12px}.zeus-particle-button canvas{width:100%;height:100%;display:block}.zeus-particle-button:focus-visible{outline:2px solid var(--gold);border-radius:30px}
 </style>
 </head>
 <body>
 <div id="app"></div>
 
+<script src="orb/zeus-orb.js"></script>
 <script>
 // ============================================
 // ZEUS - Core State & Helpers
@@ -338,7 +342,7 @@ function fdt(d) { if(!d) return ''; const x=new Date(d); return x.toLocaleString
 function nw() { return new Date().toISOString(); }
 function defState() { return { currentUser:null, currentWorkspace:null, view:'auth', mode:'dark', subView:'dashboard', users:[], workspaces:[], clients:[], venues:[], inquiries:[], bookings:[], jobs:[], invoices:[], payments:[], expenses:[], subscriptions:[], approvals:[], activities:[], integrations:[], settings:{}, demoMode:false, onboardingStep:0, oracleCards:[] }; }
 let state = defState();
-function loadState() { try { const s=localStorage.getItem(STORAGE_KEY); if(s){ const p=JSON.parse(s); state={...defState(),...p}; } }catch(e){} }
+function loadState() { try { const s=localStorage.getItem(STORAGE_KEY); if(s){ const p=JSON.parse(s); state={...defState(),...p}; for(const user of state.users)delete user.password; if(state.currentUser)delete state.currentUser.password; saveState(); } }catch(e){} }
 function saveState() { try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){} }
 function resetState() { state=defState(); saveState(); }
 
@@ -432,7 +436,9 @@ function seedDemo(){
 // RENDER ENGINE
 // ============================================
 const appEl = document.getElementById('app');
+let zeusOrb=null;
 function render(){
+  if(zeusOrb){zeusOrb.destroy();zeusOrb=null;}
   appEl.innerHTML='';
   if(state.view==='auth') renderAuth();
   else if(state.view==='onboarding') renderOnboarding();
@@ -445,64 +451,19 @@ function render(){
 // AUTH
 // ============================================
 function renderAuth(){
-  const div=document.createElement('div');
-  div.className='page auth-bg active';
-  div.innerHTML=`<div class="auth-container">
-    <div class="zeus-logo">
-      <h1>Z<span style="color:var(--gold);font-size:0.9em;display:inline-block;transform:translateY(-2px)">&#9889;</span>US</h1>
-      <p>You DJ. ZEUS runs the business.</p>
-    </div>
-    <div class="auth-form">
-      <div id="auth-form-content">
-        <div class="input-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"></div>
-        <div class="input-group"><label>Password</label><input type="password" id="auth-password" placeholder="Min 6 characters"></div>
-        <button class="btn btn-primary" onclick="handleLogin()">Sign in</button>
-      </div>
-      <div class="auth-toggle"><span id="auth-toggle-text">New to ZEUS? <a onclick="toggleAuthMode()">Create account</a></span></div>
-      <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(201,169,110,0.1);text-align:center;">
-        <button class="btn btn-secondary btn-sm" onclick="enterDemo()" style="width:100%;">Explore Demo Workspace</button>
-      </div>
-    </div>
-  </div>`;
-  appEl.appendChild(div);
+ const div=document.createElement('div');div.className='page auth-bg active';
+ div.innerHTML=`<div class="auth-container"><div class="zeus-logo"><h1>ZEUS</h1><p>You DJ. ZEUS runs the business.</p></div><div class="auth-form"><h2 style="color:var(--gold);margin-bottom:12px">Developer preview</h2><p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Local profiles on this device. Secure account sign-in and online sync are pending. Use sample data.</p><div class="input-group"><label for="local-name">Local profile name</label><input id="local-name" maxlength="60" placeholder="Your DJ name"></div><button class="btn btn-primary" onclick="openLocalProfile()">Open local profile</button><button class="btn btn-secondary" style="margin-top:12px;width:100%" onclick="enterDemo()">Explore Demo Workspace</button><p style="margin-top:20px"><a href="booking/index.html" style="color:var(--gold)">Try the booking acceptance flow</a></p></div></div>`;
+ appEl.appendChild(div);
 }
-let authMode='login';
-function toggleAuthMode(){
-  authMode=authMode==='login'?'register':'login';
-  const content=document.getElementById('auth-form-content');
-  const toggle=document.getElementById('auth-toggle-text');
-  if(authMode==='register'){
-    content.innerHTML=`<div class="input-group"><label>DJ Name</label><input type="text" id="auth-name" placeholder="Your DJ name"></div><div class="input-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"></div><div class="input-group"><label>Password</label><input type="password" id="auth-password" placeholder="Min 6 characters"></div><button class="btn btn-primary" onclick="handleRegister()">Create account</button>`;
-    toggle.innerHTML='Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
-  } else {
-    content.innerHTML=`<div class="input-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"></div><div class="input-group"><label>Password</label><input type="password" id="auth-password" placeholder="Min 6 characters"></div><button class="btn btn-primary" onclick="handleLogin()">Sign in</button>`;
-    toggle.innerHTML='New to ZEUS? <a onclick="toggleAuthMode()">Create account</a>';
-  }
-}
-function handleLogin(){
-  const email=document.getElementById('auth-email').value.trim();
-  const password=document.getElementById('auth-password').value;
-  if(!email||!password){alert('Please enter email and password');return;}
-  const user=state.users.find(u=>u.email===email);
-  if(!user){alert('User not found. Please create an account.');return;}
-  if(user.password!==password){alert('Incorrect password');return;}
-  state.currentUser=user;
-  const ws=state.workspaces.find(w=>w.ownerId===user.id);
-  if(ws){state.currentWorkspace=ws;if(ws.onboardingComplete){state.view=state.mode==='dark'?'oracle':'command';}else{state.view='onboarding';state.onboardingStep=0;}}
-  else{state.view='onboarding';state.onboardingStep=0;}
-  saveState();render();
-}
-function handleRegister(){
-  const name=document.getElementById('auth-name').value.trim();
-  const email=document.getElementById('auth-email').value.trim();
-  const password=document.getElementById('auth-password').value;
-  if(!name||!email||!password){alert('Please fill all fields');return;}
-  if(password.length<6){alert('Password must be at least 6 characters');return;}
-  if(state.users.find(u=>u.email===email)){alert('Email already registered');return;}
-  const user={id:gid(),name,email,password,role:'dj',createdAt:nw()};
-  state.users.push(user);state.currentUser=user;
-  state.view='onboarding';state.onboardingStep=0;
-  saveState();render();
+function openLocalProfile(){
+ const name=document.getElementById('local-name').value.trim();
+ if(!name){showToast('Enter a local profile name');return;}
+ const safe=name.replace(/[<>&"']/g,'');
+ let user=state.users.find(u=>u.localProfile&&u.name===safe);
+ if(!user){user={id:gid(),name:safe,email:'',role:'dj',localProfile:true,createdAt:nw()};state.users.push(user);}
+ state.currentUser=user;state.demoMode=false;
+ const ws=state.workspaces.find(w=>w.ownerId===user.id);state.currentWorkspace=ws||null;
+ state.view=ws?.onboardingComplete?(state.mode==='dark'?'oracle':'command'):'onboarding';state.onboardingStep=0;saveState();render();
 }
 function enterDemo(){
   if(!state.workspaces.find(w=>w.id==='ws_demo')) seedDemo();
@@ -618,18 +579,15 @@ function renderOracle(){
     <div class="oracle-header">
       <div class="logo">ZEUS</div>
       <div class="header-actions">
-        <button class="icon-btn" onclick="toggleMode()" title="Switch to Command Center">&#9728;</button>
-        <button class="icon-btn" onclick="openOracleMenu()" title="Menu">&#9776;</button>
+        <button class="icon-btn" onclick="toggleMode()" title="Switch to Command Center" aria-label="Switch to Command Center">&#9728;</button>
+        <button class="icon-btn" onclick="openOracleMenu()" title="Menu" aria-label="Menu">&#9776;</button>
       </div>
     </div>
     <div class="oracle-main">
-      <div class="orb-container">
-        <div class="orb-ring"></div><div class="orb-ring"></div><div class="orb-ring"></div>
-        <div class="orb" id="zeus-orb" onclick="activateOrb()">
-          <div class="orb-inner"></div>
-        </div>
-      </div>
-      <div class="orb-label" id="orb-label">Tap the orb or type below</div>
+      <button type="button" class="zeus-particle-button" onclick="activateOrb()" aria-label="Start or stop microphone visualization">
+        <canvas id="zeus-orb" role="img" aria-label="ZEUS idle"></canvas>
+      </button>
+      <div class="orb-label" id="orb-label">Tap to visualize microphone audio locally</div><a href="orb/preview.html" style="color:var(--gold);font-size:12px">Orb states &amp; voice clip</a><a href="booking/index.html" style="color:var(--gold);font-size:12px;margin-top:10px">Conversation → booking drafts</a>
       <div class="voice-input-container" style="margin-top:28px;">
         <div class="voice-input">
           <input type="text" id="oracle-input" placeholder="Ask ZEUS anything..." onkeydown="if(event.key==='Enter')handleOracleQuery()">
@@ -662,17 +620,22 @@ function renderOracle(){
       </div>
     </div>`;
   appEl.appendChild(div);
+  zeusOrb=new ZeusOrb(document.getElementById("zeus-orb"));
   renderOracleCards();
 }
-function activateOrb(){
-  const orb=document.getElementById('zeus-orb');
-  const flash=document.getElementById('lightning-flash');
-  orb.classList.add('pulse');
-  flash.classList.add('active');
-  setTimeout(()=>{orb.classList.remove('pulse');flash.classList.remove('active');},3000);
+async function activateOrb(){
+  if(!zeusOrb)return;
+  const activeOrb=zeusOrb,label=document.getElementById('orb-label');
+  if(activeOrb.state==='listening'||activeOrb.requesting){activeOrb.stop();label.textContent='Tap to visualize your voice';return;}
+  label.textContent='Requesting microphone access…';
+  try{await activeOrb.listen();if(!activeOrb.destroyed)label.textContent=activeOrb.state==='listening'?'Listening locally • tap to stop':'Tap to visualize your voice';}
+  catch(e){if(!activeOrb.destroyed){activeOrb.stop();activeOrb.setState('error');label.textContent='Microphone unavailable. You can type below.';}}
 }
+// Connect the actual audio element used by a future voice provider; no simulated speech levels.
+window.ZEUSVoice={connectAudio:audio=>zeusOrb?zeusOrb.connectAudio(audio):Promise.reject(new Error('Open Oracle first')),setState:state=>zeusOrb?.setState(state),stop:()=>zeusOrb?.stop()};
+
 function openOracleMenu(){document.getElementById('bs-overlay').classList.add('active');document.getElementById('bs-menu').classList.add('open');}
-function closeOracleMenu(){document.getElementById('bs-overlay').classList.remove('active');document.getElementById('bs-menu').classList.remove('open');}
+function closeOracleMenu(){document.getElementById('bs-overlay')?.classList.remove('active');document.getElementById('bs-menu')?.classList.remove('open');}
 function quickAsk(q){document.getElementById('oracle-input').value=q;handleOracleQuery();}
 function handleOracleQuery(){
   const input=document.getElementById('oracle-input');
@@ -763,7 +726,7 @@ function showToast(msg){
   setTimeout(()=>toast.remove(),3000);
 }
 function toggleMode(){state.mode=state.mode==='dark'?'light':'dark';state.view=state.mode==='dark'?'oracle':'command';saveState();render();}
-function switchView(v){state.view=v;saveState();}
+function switchView(v){state.view=v;saveState();render();}
 
 // ============================================
 // COMMAND CENTER (LIGHT MODE)
@@ -1312,6 +1275,7 @@ function viewVenue(id){
 // ============================================
 // INIT
 // ============================================
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>console.warn('Offline shell unavailable'));
 loadState();
 if(!state.currentUser){
   render();
