@@ -1,0 +1,9 @@
+{
+  "name": "zeus-prototype-checks",
+  "private": true,
+  "scripts": {
+    "test": "node tests/booking.cjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "devDependencies": {"playwright": "1.62.1"}
+}

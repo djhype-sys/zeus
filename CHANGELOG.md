@@ -12,3 +12,10 @@
 - Removed compiled Python cache files from the prepared copy; kept original source and artwork.
 - The user created the repository as djhype-sys/zeus; its existence and private visibility were verified before this source upload.
 
+
+## 2026-10-11 — verified local prototype increment
+- Original audio-reactive particle orb, six states and four per-state formations.
+- Consented bounded booking drafts with dates left unresolved, overnight semantics, CFO/SHADOW/follow-up drafts, local review and audit.
+- Password collection removed from developer preview; legacy password properties scrubbed on load.
+- Offline public app shell, PNG install icons, Netlify app publish directory and Command Center rendering fix.
+- Local source, booking, archived agent and desktop/mobile browser checks passed; physical device/mic, secure auth/sync, live integrations and deployment remain outstanding.
