@@ -5,7 +5,7 @@ ZEUS is not a generic chatbot. It is a cinematic voice-first business operating 
 ## Recovery instructions for any future AI/developer
 0. Read docs/PHASE_01.md for the latest release scope and platform decisions. The user selected djhype-sys/zeus as the repository on 9 October 2026. Its public visibility was approved by the user and verified, and GitHub connector source reads succeed; browser commits remain available while connector writes require an app grant.
 1. Read README.md, docs/ZEUS_MASTER_SPEC.md and archive/kimi-k3/ZEUS_Kimi_K3_Build_Package/KIMI_K3_MASTER_BUILD_PROMPT.md.
-2. Inspect app/index.html as the beta starting point; inspect archive/original-v0.1 for earlier voice/PWA features.
+2. Read docs/VERIFY_2026-10-11.md, then inspect app/index.html, app/booking/ and app/orb/ as the current prototype; inspect archive/original-v0.1 for earlier voice/PWA features.
 3. Review the original assets in archive/kimi-k3/.../assets. Do not substitute generic imagery for supplied assets.
 4. Read docs/ROADMAP.md and CHANGELOG.md. Never claim untested integrations are working.
 5. Work on a feature branch, run tests, document changes, obtain approval before deploying or performing external actions.
@@ -18,4 +18,7 @@ The beta is browser-local and does not establish production-grade authentication
 - app/: baseline deployable beta
 - archive/: untouched contents of four provided ZIPs
 - docs/: authoritative roadmap, spec, and handoff
-- .github/workflows/: static smoke checks
+- .github/workflows/: source, bounded booking and browser acceptance checks
+
+## Current increment — 11 October 2026
+Local prototype browser and booking tests passed. New code is limited to local developer-preview behavior. The published Netlify deploy is stale; root 404, app path 200. Publish `app/` from the current repository or upload the contents of `app/` at ZIP root. A Netlify login is currently needed to publish. Never report the new source as deployed until root HTTP 200, asset hashes and runtime acceptance are rechecked. Keep Gmail/Calendar/Notion/Spotify/Canva at REQUESTED until ZEUS-specific dated authorization/tests exist.
